@@ -811,7 +811,7 @@ function renderDayView(idx,tt,todayIdx){
     </div>`;
   }).join('')}</div>`;
 }
-window.editTimetable=()=>openModal('ttModal');
+window.editTimetable=function(){openModal('ttModal')};
 window.editCell=function(day,period){
   document.getElementById('ttDay').value=day;
   document.getElementById('ttPeriod').value=period;
@@ -1107,6 +1107,27 @@ window.changePw=async function(){
 window.showAbout=()=>alert('과학고 1-1반 앱 v2.0\nFirebase Firestore 실시간 공유 버전\n제작: Claude AI');
 
 // ══ 앱 시작 ══
+// 누락 window 함수 보완
+window.openHwModal=()=>openModal('hwModal');
+window.openPostModal=()=>openModal('postModal');
+window.openFileLinkModal=function(){
+  document.getElementById('fileDesc').value='';
+  document.getElementById('fileLinkUrl').value='';
+  document.getElementById('fileMemo').value='';
+  openModal('fileModal');
+};
+window.openDdayModal=()=>openModal('ddayModal');
+window.openPwChange=()=>openModal('pwModal');
+window.editTimetable=function(){openModal('ttModal')};
+window.doLogout=async function(){
+  if(!confirm('로그아웃할까요?'))return;
+  _unsubscribers.forEach(u=>u());_unsubscribers=[];
+  currentUser=null;sessionStorage.removeItem('curUser');
+  showScreen('loginScreen');
+  document.getElementById('loginId').value='';
+  document.getElementById('loginPw').value='';
+  document.getElementById('loginErr').textContent='';
+};
 async function init(){
   // 엔터키
   ['loginId','loginPw'].forEach(id=>{
