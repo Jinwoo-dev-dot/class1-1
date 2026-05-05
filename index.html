@@ -1107,18 +1107,35 @@ window.changePw=async function(){
 window.showAbout=()=>alert('과학고 1-1반 앱 v2.0\nFirebase Firestore 실시간 공유 버전\n제작: Claude AI');
 
 // ══ 앱 시작 ══
-// 누락 window 함수 보완
-window.openHwModal=()=>openModal('hwModal');
-window.openPostModal=()=>openModal('postModal');
+// ── window에 모든 함수 등록 (onclick 작동용) ──
+window.goPage=goPage;
+window.showScreen=showScreen;
+window.closeModal=closeModal;
+window.switchLoginTab=function(tab){
+  document.getElementById('tabStudent').classList.toggle('active',tab==='student');
+  document.getElementById('tabTeacher').classList.toggle('active',tab==='teacher');
+  document.getElementById('loginPanelStudent').style.display=tab==='student'?'':'none';
+  document.getElementById('loginPanelTeacher').style.display=tab==='teacher'?'':'none';
+};
+window.showTeacherLogin=function(){document.getElementById('teacherRegisterForm').style.display='none';document.getElementById('teacherLoginForm').style.display=''};
+window.showTeacherRegister=function(){document.getElementById('teacherRegisterForm').style.display='';document.getElementById('teacherLoginForm').style.display='none'};
+window.editTimetable=function(){openModal('ttModal')};
+window.openHwModal=function(){openModal('hwModal')};
+window.openPostModal=function(){openModal('postModal')};
+window.openDdayModal=function(){openModal('ddayModal')};
+window.openPwChange=function(){openModal('pwModal')};
+window.openProfileEdit=function(){
+  _pColor=currentUser.color||'#3b82f6';_pEmoji=currentUser.emoji||'🎓';
+  document.getElementById('profileStatusInput').value=currentUser.status||'';
+  updateProfilePreview();openModal('profileEditModal');
+};
 window.openFileLinkModal=function(){
   document.getElementById('fileDesc').value='';
   document.getElementById('fileLinkUrl').value='';
   document.getElementById('fileMemo').value='';
   openModal('fileModal');
 };
-window.openDdayModal=()=>openModal('ddayModal');
-window.openPwChange=()=>openModal('pwModal');
-window.editTimetable=function(){openModal('ttModal')};
+window.showAbout=function(){alert('과학고 1-1반 앱 v2.0\nFirebase Firestore 실시간 공유 버전\n제작: Claude AI')};
 window.doLogout=async function(){
   if(!confirm('로그아웃할까요?'))return;
   _unsubscribers.forEach(u=>u());_unsubscribers=[];
@@ -1128,10 +1145,11 @@ window.doLogout=async function(){
   document.getElementById('loginPw').value='';
   document.getElementById('loginErr').textContent='';
 };
+
 async function init(){
   // 엔터키
   ['loginId','loginPw'].forEach(id=>{
-    document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+    document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin()});
   });
 
   // 세션 복구
