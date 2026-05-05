@@ -305,6 +305,12 @@ input,textarea,button,select{font-family:inherit}
     <div id="postList"></div>
   </div>
 
+  <!-- 투표 -->
+  <div id="page-vote" class="page">
+    <div class="sec-header"><div class="sec-title">📊 투표/설문<small>익명 실시간 투표</small></div><button class="btn-sm btn-accent" onclick="openVoteModal()">+ 만들기</button></div>
+    <div id="voteList"></div>
+  </div>
+
   <!-- 놀기 -->
   <div id="page-fun" class="page">
     <div class="sec-header"><div class="sec-title">🎯 놀기<small>돌림판 &amp; 제비뽑기</small></div></div>
@@ -313,6 +319,7 @@ input,textarea,button,select{font-family:inherit}
     <div style="display:flex;gap:8px;margin-bottom:20px">
       <button id="funTab1" onclick="switchFunTab(1)" style="flex:1;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">🎡 돌림판</button>
       <button id="funTab2" onclick="switchFunTab(2)" style="flex:1;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">🎲 제비뽑기</button>
+      <button id="funTab3" onclick="switchFunTab(3)" style="flex:1;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">👥 조편성</button>
     </div>
 
     <!-- 돌림판 -->
@@ -369,7 +376,39 @@ input,textarea,button,select{font-family:inherit}
     </div>
   </div>
 
-  <!-- 더보기 -->
+    <!-- 조편성 -->
+    <div id="funPanel3" style="display:none">
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">⚙️ 조편성 설정</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:16px">총 인원과 조당 인원을 입력하면 모든 경우의 수를 보여줘요</div>
+        <div style="display:flex;gap:12px;margin-bottom:12px">
+          <div style="flex:1">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:6px">총 인원</div>
+            <input type="number" id="groupTotal" value="20" min="2" max="50" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:16px;color:var(--text);outline:none;text-align:center;font-weight:700">
+          </div>
+          <div style="flex:1">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:6px">조당 인원</div>
+            <input type="number" id="groupSize" value="3" min="2" max="20" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:16px;color:var(--text);outline:none;text-align:center;font-weight:700">
+          </div>
+        </div>
+        <button onclick="calcGroups()" style="width:100%;background:linear-gradient(135deg,var(--green),var(--accent2));border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;color:#fff;cursor:pointer">경우의 수 계산 →</button>
+      </div>
+
+      <!-- 경우의 수 선택 -->
+      <div id="groupCaseList"></div>
+
+      <!-- 선택된 조편성 결과 -->
+      <div id="groupResult" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="sec-title" style="font-size:15px">🎲 조편성 결과</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="reshuffleGroups()" style="background:var(--accent);border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">🔀 다시 섞기</button>
+            <button onclick="document.getElementById('groupResult').style.display='none'" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--text2);cursor:pointer">✕</button>
+          </div>
+        </div>
+        <div id="groupResultCards"></div>
+      </div>
+    </div>
   <div id="page-more" class="page">
     <div class="profile-banner">
       <div class="profile-avatar" id="profileAvatar">🎓</div>
@@ -429,6 +468,7 @@ input,textarea,button,select{font-family:inherit}
     <button class="nav-item" onclick="goPage('homework')" id="nav-homework"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15h8v2H8zm0-4h8v2H8z"/></svg><span>과제</span></button>
     <button class="nav-item" onclick="goPage('files')" id="nav-files"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg><span>자료실</span></button>
     <button class="nav-item" onclick="goPage('board')" id="nav-board"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15c0 1.1-.9 2-2 2H7l-4 4V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v10z"/></svg><span>게시판</span></button>
+    <button class="nav-item" onclick="goPage('vote')" id="nav-vote"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg><span>투표</span></button>
     <button class="nav-item" onclick="goPage('fun')" id="nav-fun"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg><span>놀기</span></button>
     <button class="nav-item" onclick="goPage('more')" id="nav-more"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg><span>더보기</span></button>
   </nav>
@@ -531,6 +571,42 @@ input,textarea,button,select{font-family:inherit}
   <div class="modal"><div class="modal-handle"></div><h3>제외할 학생 선택</h3>
     <div id="excludeModalList" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div>
     <div class="modal-actions"><button class="btn-cancel" onclick="closeModal('excludeModal')">취소</button><button class="btn-submit" onclick="closeModal('excludeModal')">확인</button></div>
+  </div>
+</div>
+
+<!-- 투표 만들기 -->
+<div class="modal-overlay" id="voteModal">
+  <div class="modal"><div class="modal-handle"></div><h3>📊 투표 만들기</h3>
+    <div class="field"><label>질문</label><input type="text" id="voteQuestion" placeholder="예) 체육대회 종목 뭐가 좋아?"></div>
+    <div class="field">
+      <label>선택지 <span style="color:var(--text3);font-size:11px">(최소 2개)</span></label>
+      <div id="voteOptionsList"></div>
+      <button onclick="addVoteOption()" style="width:100%;margin-top:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer">+ 선택지 추가</button>
+    </div>
+    <div class="field">
+      <label>설정</label>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="voteMultiple" style="width:18px;height:18px;accent-color:var(--accent)">
+          <span style="font-size:14px">복수 선택 허용</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="voteAnon" checked style="width:18px;height:18px;accent-color:var(--accent)">
+          <span style="font-size:14px">익명 투표</span>
+        </label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:14px;white-space:nowrap">마감 시간</span>
+          <select id="voteExpiry" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;color:var(--text);outline:none">
+            <option value="0">마감 없음</option>
+            <option value="1">1시간</option>
+            <option value="6">6시간</option>
+            <option value="24">24시간</option>
+            <option value="72">3일</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal('voteModal')">취소</button><button class="btn-submit" onclick="createVote()">만들기</button></div>
   </div>
 </div>
 
@@ -642,6 +718,7 @@ function goPage(name){
   if(name==='homework')renderHomework();
   if(name==='files')renderFiles();
   if(name==='board')renderBoard();
+  if(name==='vote')renderVote();
   if(name==='more')renderMore();
   if(name==='fun'){renderWheelItems();drawWheel();}
   if(name==='admin'){loadAdminUsers();}
@@ -1270,6 +1347,252 @@ window.changePw=async function(){
 };
 window.showAbout=()=>alert('과학고 1-1반 앱 v2.0\nFirebase Firestore 실시간 공유 버전\n제작: Claude AI');
 
+// ══ 투표/설문 ══
+const VOTES = 'votes';
+let _voteOptions = ['',''];
+
+window.openVoteModal=function(){
+  _voteOptions=['',''];
+  document.getElementById('voteQuestion').value='';
+  document.getElementById('voteMultiple').checked=false;
+  document.getElementById('voteAnon').checked=true;
+  document.getElementById('voteExpiry').value='0';
+  renderVoteOptions();
+  openModal('voteModal');
+};
+
+function renderVoteOptions(){
+  const list=document.getElementById('voteOptionsList');
+  list.innerHTML=_voteOptions.map((opt,i)=>`
+    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+      <input type="text" value="${opt}" placeholder="선택지 ${i+1}" oninput="_voteOptions[${i}]=this.value"
+        style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none">
+      ${_voteOptions.length>2?`<div onclick="removeVoteOption(${i})" style="font-size:20px;cursor:pointer;color:var(--text3);flex-shrink:0">×</div>`:''}
+    </div>`).join('');
+}
+
+window.addVoteOption=function(){
+  _voteOptions.push('');renderVoteOptions();
+};
+window.removeVoteOption=function(i){
+  _voteOptions.splice(i,1);renderVoteOptions();
+};
+
+window.createVote=async function(){
+  const question=document.getElementById('voteQuestion').value.trim();
+  const options=_voteOptions.map(o=>o.trim()).filter(Boolean);
+  if(!question){showToast('질문을 입력하세요');return}
+  if(options.length<2){showToast('선택지를 2개 이상 입력하세요');return}
+  const multiple=document.getElementById('voteMultiple').checked;
+  const anon=document.getElementById('voteAnon').checked;
+  const expiry=parseInt(document.getElementById('voteExpiry').value);
+  const expiresAt=expiry>0?new Date(Date.now()+expiry*3600000):null;
+  await addDoc(collection(db,VOTES),{
+    question,options,multiple,anon,
+    expiresAt:expiresAt?expiresAt.toISOString():null,
+    createdBy:currentUser.snum,
+    author:currentUser.name,
+    ts:serverTimestamp(),
+    votes:{}, // {snum: [optionIdx,...]}
+    active:true
+  });
+  closeModal('voteModal');
+  showToast('📊 투표 생성 완료!');
+};
+
+function renderVote(){
+  const container=document.getElementById('voteList');
+  container.innerHTML='<div style="text-align:center;color:var(--text3);padding:20px;font-size:13px">로딩 중...</div>';
+  const unsub=onSnapshot(query(collection(db,VOTES),orderBy('ts','desc')),snap=>{
+    const votes=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!votes.length){
+      container.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px;font-size:13px">투표가 없어요<br>첫 번째 투표를 만들어보세요! 📊</div>';
+      return;
+    }
+    container.innerHTML=votes.map(v=>renderVoteCard(v)).join('');
+  });
+  _unsubscribers.push(unsub);
+}
+
+function renderVoteCard(v){
+  const myVotes=v.votes?.[currentUser.snum]||[];
+  const hasVoted=myVotes.length>0;
+  const isExpired=v.expiresAt&&new Date(v.expiresAt)<new Date();
+  const isOwner=v.createdBy===currentUser.snum||currentUser.snum==='1120';
+  const totalVoters=Object.keys(v.votes||{}).length;
+  // 옵션별 득표수
+  const counts=v.options.map((_,i)=>Object.values(v.votes||{}).filter(arr=>arr.includes(i)).length);
+  const maxCount=Math.max(...counts,1);
+
+  return`<div class="card" style="margin-bottom:14px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          ${v.anon?'<span class="pill pill-purple">익명</span>':''}
+          ${v.multiple?'<span class="pill pill-blue">복수선택</span>':''}
+          ${isExpired?'<span class="pill pill-red">마감됨</span>':'<span class="pill pill-green">진행중</span>'}
+        </div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:2px">${v.question}</div>
+        <div style="font-size:11px;color:var(--text3)">${v.author} · ${timeAgo(v.ts)} · 참여 ${totalVoters}명</div>
+      </div>
+      ${isOwner?`<button onclick="deleteVote('${v.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:0 4px;flex-shrink:0">×</button>`:''}
+    </div>
+    <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+      ${v.options.map((opt,i)=>{
+        const cnt=counts[i];
+        const pct=totalVoters>0?Math.round(cnt/totalVoters*100*10)/10:0; // 실제 참여자 수 기준
+        const voted=myVotes.includes(i);
+        const showResult=hasVoted||isExpired;
+        return`<div onclick="${!hasVoted&&!isExpired?`castVote('${v.id}',${i},${v.multiple})`:''}">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="width:18px;height:18px;border-radius:${v.multiple?'4px':'50%'};border:2px solid ${voted?'var(--accent)':'var(--border)'};background:${voted?'var(--accent)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                ${voted?'<div style="width:8px;height:8px;border-radius:2px;background:#fff"></div>':''}
+              </div>
+              <span style="font-size:14px;font-weight:${voted?'700':'400'}">${opt}</span>
+            </div>
+            ${showResult?`<span style="font-size:13px;font-weight:700;color:${voted?'var(--accent)':'var(--text2)'}">${cnt}표 (${pct}%)</span>`:''}
+          </div>
+          ${showResult?`<div style="height:8px;background:var(--surface2);border-radius:4px;overflow:hidden">
+            <div style="height:100%;width:${cnt/maxCount*100}%;background:${voted?'var(--accent)':'var(--border)'};border-radius:4px;transition:width .6s ease"></div>
+          </div>`:`<div style="height:8px;background:var(--surface2);border-radius:4px;cursor:pointer;transition:background .2s" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface2)'"></div>`}
+        </div>`;
+      }).join('')}
+    </div>
+    ${!hasVoted&&!isExpired?`<div style="font-size:12px;color:var(--text3);text-align:center;margin-top:12px">👆 탭해서 투표하세요${v.anon?' (익명)':''}</div>`:''}
+    ${hasVoted&&!isExpired?`<div style="display:flex;justify-content:center;margin-top:12px"><button onclick="cancelVote('${v.id}')" style="background:none;border:1px solid var(--border);border-radius:10px;padding:6px 16px;font-size:12px;color:var(--text3);cursor:pointer">투표 취소</button></div>`:''}
+  </div>`;
+}
+
+window.castVote=async function(voteId,optIdx,multiple){
+  const ref2=doc(db,VOTES,voteId);
+  const snap=await getDoc(ref2);
+  if(!snap.exists())return;
+  const v=snap.data();
+  const myVotes=v.votes?.[currentUser.snum]||[];
+  let newVotes;
+  if(multiple){
+    // 복수선택: 토글
+    newVotes=myVotes.includes(optIdx)?myVotes.filter(i=>i!==optIdx):[...myVotes,optIdx];
+  } else {
+    newVotes=[optIdx];
+  }
+  if(newVotes.length===0){
+    // 모두 해제 → 투표 삭제
+    const updated={...v.votes};delete updated[currentUser.snum];
+    await updateDoc(ref2,{votes:updated});
+  } else {
+    await updateDoc(ref2,{[`votes.${currentUser.snum}`]:newVotes});
+  }
+  showToast('✅ 투표 완료!');
+};
+
+window.cancelVote=async function(voteId){
+  const ref2=doc(db,VOTES,voteId);
+  const snap=await getDoc(ref2);
+  if(!snap.exists())return;
+  const updated={...snap.data().votes};
+  delete updated[currentUser.snum];
+  await updateDoc(ref2,{votes:updated});
+  showToast('투표 취소됨');
+};
+
+window.deleteVote=async function(id){
+  if(!confirm('투표를 삭제할까요?'))return;
+  await deleteDoc(doc(db,VOTES,id));
+  showToast('삭제됨');
+};
+let _groupMembers=[];
+let _selectedCase=null;
+
+window.calcGroups=async function(){
+  const total=parseInt(document.getElementById('groupTotal').value);
+  const size=parseInt(document.getElementById('groupSize').value);
+  if(isNaN(total)||isNaN(size)||total<2||size<2||size>total){showToast('올바른 숫자를 입력하세요');return}
+  try{
+    const snap=await getDocs(collection(db,USERS));
+    const names=snap.empty?[]:snap.docs.map(d=>d.data().name||d.id);
+    _groupMembers=Array.from({length:total},(_,i)=>names[i]||`${1101+i}`);
+  }catch{
+    _groupMembers=Array.from({length:total},(_,i)=>`${1101+i}`);
+  }
+  const cases=getGroupCases(total,size);
+  if(!cases.length){showToast('나눌 수 없는 조합이에요');return}
+  const container=document.getElementById('groupCaseList');
+  container.innerHTML=`<div style="font-size:14px;font-weight:700;margin:16px 0 10px">📋 가능한 조 구성 (${cases.length}가지)</div>`+
+  cases.map((c,i)=>`
+    <div onclick="selectGroupCase(${i})" id="gc_${i}" style="background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all .2s">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:700">방법 ${i+1}</div>
+        <div style="font-size:11px;color:var(--text3)">총 ${c.reduce((a,b)=>a+b.size*b.count,0)}명</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${c.map(g=>`<div style="background:rgba(59,130,246,.15);border:1px solid var(--accent);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600;color:var(--accent)">${g.size}명 × ${g.count}조</div>`).join('')}
+      </div>
+    </div>`).join('');
+  document.getElementById('groupResult').style.display='none';
+};
+
+function getGroupCases(total,size){
+  const cases=[];const seen=new Set();
+  for(let a=0;a*size<=total;a++){
+    const rem=total-a*size;
+    for(let bSize=2;bSize<=total;bSize++){
+      if(bSize===size)continue;
+      if(rem>0&&rem%bSize===0){
+        const b=rem/bSize;
+        const entry=[];
+        if(a>0)entry.push({size,count:a});
+        if(b>0)entry.push({size:bSize,count:b});
+        const key=entry.map(g=>`${g.size}x${g.count}`).sort().join(',');
+        if(!seen.has(key)){seen.add(key);cases.push(entry);}
+      }
+    }
+    if(rem===0&&a>0){
+      const key=`${size}x${a}`;
+      if(!seen.has(key)){seen.add(key);cases.push([{size,count:a}]);}
+    }
+  }
+  return cases.sort((a,b)=>{
+    const diffA=Math.max(...a.map(g=>g.size))-Math.min(...a.map(g=>g.size));
+    const diffB=Math.max(...b.map(g=>g.size))-Math.min(...b.map(g=>g.size));
+    return diffA-diffB;
+  });
+}
+
+window.selectGroupCase=function(idx){
+  document.querySelectorAll('[id^=gc_]').forEach(el=>{el.style.borderColor='var(--border)';el.style.background='var(--surface)'});
+  const el=document.getElementById('gc_'+idx);
+  if(el){el.style.borderColor='var(--accent)';el.style.background='rgba(59,130,246,.06)';}
+  _selectedCase=idx;doShuffle();
+};
+
+function doShuffle(){
+  if(_selectedCase===null)return;
+  const total=parseInt(document.getElementById('groupTotal').value);
+  const size=parseInt(document.getElementById('groupSize').value);
+  const cases=getGroupCases(total,size);
+  const c=cases[_selectedCase];
+  const members=[..._groupMembers];
+  for(let i=members.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[members[i],members[j]]=[members[j],members[i]];}
+  const COLORS=['#3b82f6','#8b5cf6','#ec4899','#10b981','#f59e0b','#06b6d4','#ef4444','#f97316','#14b8a6','#6366f1'];
+  const groups=[];let ptr=0;
+  c.forEach(g=>{for(let i=0;i<g.count;i++){groups.push({members:members.slice(ptr,ptr+g.size),color:COLORS[groups.length%COLORS.length]});ptr+=g.size;}});
+  document.getElementById('groupResultCards').innerHTML=groups.map((g,i)=>`
+    <div class="card" style="margin-bottom:10px;border-color:${g.color}44">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="width:28px;height:28px;border-radius:8px;background:${g.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${i+1}</div>
+        <div style="font-size:14px;font-weight:700">${i+1}조 <span style="font-size:12px;color:var(--text3)">(${g.members.length}명)</span></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${g.members.map(m=>`<div style="background:${g.color}22;border:1px solid ${g.color}66;border-radius:20px;padding:6px 14px;font-size:14px;font-weight:600">${m}</div>`).join('')}
+      </div>
+    </div>`).join('');
+  document.getElementById('groupResult').style.display='block';
+  document.getElementById('groupResult').scrollIntoView({behavior:'smooth',block:'start'});
+}
+window.reshuffleGroups=function(){doShuffle();showToast('🔀 다시 섞었어!')};
+
 // ══ 앱 시작 ══
 // ══ 오늘의 명언 ══
 const QUOTES = [
@@ -1450,14 +1773,12 @@ let excludedStudents = new Set();
 const WHEEL_COLORS = ['#3b82f6','#8b5cf6','#ec4899','#10b981','#f59e0b','#06b6d4','#ef4444','#f97316','#14b8a6','#6366f1','#84cc16','#a855f7','#14b8a6','#fb923c','#60a5fa','#f472b6','#34d399','#fbbf24','#38bdf8','#e879f9'];
 
 window.switchFunTab=function(n){
-  document.getElementById('funPanel1').style.display=n===1?'':'none';
-  document.getElementById('funPanel2').style.display=n===2?'':'none';
-  document.getElementById('funTab1').style.background=n===1?'var(--accent)':'var(--surface)';
-  document.getElementById('funTab1').style.color=n===1?'#fff':'var(--text2)';
-  document.getElementById('funTab1').style.border=n===1?'none':'1px solid var(--border)';
-  document.getElementById('funTab2').style.background=n===2?'var(--accent)':'var(--surface)';
-  document.getElementById('funTab2').style.color=n===2?'#fff':'var(--text2)';
-  document.getElementById('funTab2').style.border=n===2?'none':'1px solid var(--border)';
+  [1,2,3].forEach(i=>{
+    const p=document.getElementById('funPanel'+i);
+    const b=document.getElementById('funTab'+i);
+    if(p)p.style.display=i===n?'':'none';
+    if(b){b.style.background=i===n?'var(--accent)':'var(--surface)';b.style.color=i===n?'#fff':'var(--text2)';b.style.border=i===n?'none':'1px solid var(--border)';}
+  });
   if(n===1)drawWheel();
 };
 
