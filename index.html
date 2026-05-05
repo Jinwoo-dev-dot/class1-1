@@ -767,6 +767,7 @@ function initMain(){
   document.getElementById('homeDate').textContent=formatDate(now);
   document.getElementById('userChip').textContent=displayName(currentUser);
   startAdminMsgListener();
+  setTimeout(showDailyQuote, 800);
   goPage('home');
 }
 
@@ -1270,7 +1271,64 @@ window.changePw=async function(){
 window.showAbout=()=>alert('과학고 1-1반 앱 v2.0\nFirebase Firestore 실시간 공유 버전\n제작: Claude AI');
 
 // ══ 앱 시작 ══
-// ══ 관리자 (1120 전용) ══
+// ══ 오늘의 명언 ══
+const QUOTES = [
+  {text:"천재는 1%의 영감과 99%의 노력으로 만들어진다.", author:"토마스 에디슨"},
+  {text:"성공은 열정을 잃지 않고 실패를 거듭할 수 있는 능력이다.", author:"윈스턴 처칠"},
+  {text:"당신이 할 수 있다고 믿든, 할 수 없다고 믿든 — 당신이 옳다.", author:"헨리 포드"},
+  {text:"오늘 할 수 있는 일을 내일로 미루지 마라.", author:"벤자민 프랭클린"},
+  {text:"지식에 대한 투자가 가장 이윤이 높다.", author:"벤자민 프랭클린"},
+  {text:"시작이 반이다.", author:"아리스토텔레스"},
+  {text:"불가능이란 노력하지 않는 자의 변명이다.", author:"나폴레옹"},
+  {text:"고통이 없으면 얻는 것도 없다.", author:"벤자민 프랭클린"},
+  {text:"우리가 두려워해야 할 것은 두려움 그 자체뿐이다.", author:"프랭클린 루스벨트"},
+  {text:"넘어지는 것이 실패가 아니라, 넘어진 채로 있는 것이 실패다.", author:"소크라테스"},
+  {text:"배움에는 끝이 없다.", author:"마르쿠스 아우렐리우스"},
+  {text:"천리 길도 한 걸음부터.", author:"노자"},
+  {text:"나는 실패한 것이 아니다. 작동하지 않는 방법을 1만 가지 발견했을 뿐이다.", author:"토마스 에디슨"},
+  {text:"꿈을 꾸는 자만이 위업을 이룬다.", author:"조지 고든 바이런"},
+  {text:"시간은 돈이다.", author:"벤자민 프랭클린"},
+  {text:"무지는 지식보다 더 큰 자신감을 만들어낸다.", author:"찰스 다윈"},
+  {text:"진정한 지식은 자신이 얼마나 모르는지를 아는 것이다.", author:"소크라테스"},
+  {text:"인생은 자전거를 타는 것과 같다. 균형을 잡으려면 계속 움직여야 한다.", author:"알베르트 아인슈타인"},
+  {text:"상상력은 지식보다 중요하다.", author:"알베르트 아인슈타인"},
+  {text:"교육은 버킷을 채우는 것이 아니라 불을 지피는 것이다.", author:"윌리엄 버틀러 예이츠"},
+  {text:"가장 어두운 밤도 끝나고 태양은 뜰 것이다.", author:"빅토르 위고"},
+  {text:"성공의 비결은 목적의 일관성에 있다.", author:"벤자민 디즈레일리"},
+  {text:"지금 당장 행동하지 않으면 언제 할 것인가?", author:"힐렐"},
+  {text:"작은 기회로부터 종종 위대한 업적이 시작된다.", author:"데모스테네스"},
+  {text:"인내는 쓰나 그 열매는 달다.", author:"장 자크 루소"},
+  {text:"자신을 믿어라. 자신의 능력을 믿어라.", author:"노먼 빈센트 필"},
+  {text:"열심히 일하는 것보다 현명하게 일하는 것이 낫다.", author:"앨런 왓슨"},
+  {text:"포기하지 마라. 처음엔 다 어렵다.", author:"라이너 마리아 릴케"},
+  {text:"망설임은 기회를 죽인다.", author:"에드먼드 버크"},
+  {text:"아는 것이 힘이다.", author:"프랜시스 베이컨"},
+];
+
+function showDailyQuote(){
+  // 오늘 날짜 기반으로 명언 선택 (매일 바뀜)
+  const today=new Date();
+  const dayIdx=(today.getFullYear()*1000+today.getMonth()*31+today.getDate())%QUOTES.length;
+  const q=QUOTES[dayIdx];
+
+  // 오늘 이미 봤으면 스킵
+  const seen=localStorage.getItem('seenQuoteDate');
+  const todayStr=today.toDateString();
+  if(seen===todayStr)return;
+  localStorage.setItem('seenQuoteDate',todayStr);
+
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:8000;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px);animation:fadeIn .4s ease';
+  overlay.innerHTML=`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:28px;padding:36px 28px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center">
+      <div style="font-size:36px;margin-bottom:16px">💬</div>
+      <div style="font-size:11px;color:var(--accent2);font-weight:700;letter-spacing:3px;margin-bottom:20px">오늘의 명언</div>
+      <div style="font-size:17px;line-height:1.8;color:var(--text);font-weight:500;margin-bottom:20px;word-break:keep-all">"${q.text}"</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:28px">— ${q.author}</div>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;color:#fff;cursor:pointer">오늘도 화이팅! 🔥</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
 const ADMIN_MSG_COL = 'adminMsg';
 
 window.sendAdminMsg=async function(){
@@ -1288,21 +1346,63 @@ window.clearAdminMsg=async function(){
 window.loadAdminUsers=async function(){
   const container=document.getElementById('adminUserList');
   container.innerHTML='<div style="text-align:center;color:var(--text3);padding:16px;font-size:13px">불러오는 중...</div>';
-  const snap=await getDocs(collection(db,USERS));
-  if(snap.empty){container.innerHTML='<div style="text-align:center;color:var(--text3);padding:16px;font-size:13px">등록된 학생이 없어요</div>';return}
-  const users=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.id.localeCompare(b.id));
-  container.innerHTML=users.map(u=>`
-    <div class="card" style="margin-bottom:10px;padding:14px 16px">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,${u.color||'#3b82f6'},#06b6d4);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${u.emoji||'🎓'}</div>
-        <div style="flex:1">
-          <div style="font-size:15px;font-weight:700">${u.name||'-'} <span style="font-size:12px;color:var(--text3)">(${u.id})</span></div>
-          <div style="font-size:12px;color:var(--text2);margin-top:2px">아이디: ${u.userId||u.id} · 비번: <span style="color:var(--yellow)">${u.pw||'-'}</span></div>
-          ${u.status?`<div style="font-size:11px;color:var(--accent2);margin-top:2px">"${u.status}"</div>`:''}
+
+  // 학생 + 교사 동시 로드
+  const [studSnap, teachSnap] = await Promise.all([
+    getDocs(collection(db,USERS)),
+    getDocs(collection(db,TEACHERS))
+  ]);
+
+  let html='';
+
+  // 교사 목록
+  if(!teachSnap.empty){
+    html+=`<div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:8px;letter-spacing:1px">👨‍🏫 등록된 교사</div>`;
+    html+=teachSnap.docs.map(d=>{
+      const t=d.data();
+      return`<div class="card" style="margin-bottom:8px;padding:14px 16px;border-color:rgba(6,182,212,.3)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👨‍🏫</div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:700">${t.name||'-'} <span style="font-size:11px;color:var(--accent2);font-weight:700">[교사]</span></div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">아이디: ${d.id} · 비번: <span style="color:var(--yellow)">${t.pw||'-'}</span></div>
+          </div>
+          <button onclick="resetTeacherPw('${d.id}')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--red);cursor:pointer;white-space:nowrap">비번초기화</button>
         </div>
-        <button onclick="resetUserPw('${u.id}')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--red);cursor:pointer;white-space:nowrap">비번초기화</button>
-      </div>
-    </div>`).join('');
+      </div>`;
+    }).join('');
+  } else {
+    html+=`<div class="card" style="margin-bottom:8px;text-align:center;color:var(--text3);font-size:13px">등록된 교사 없음</div>`;
+  }
+
+  // 학생 목록
+  html+=`<div style="font-size:12px;font-weight:700;color:var(--accent);margin:16px 0 8px;letter-spacing:1px">🎓 등록된 학생 (${studSnap.size}명)</div>`;
+  if(studSnap.empty){
+    html+='<div style="text-align:center;color:var(--text3);padding:16px;font-size:13px">등록된 학생이 없어요</div>';
+  } else {
+    const users=studSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.id.localeCompare(b.id));
+    html+=users.map(u=>`
+      <div class="card" style="margin-bottom:8px;padding:14px 16px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,${u.color||'#3b82f6'},#06b6d4);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${u.emoji||'🎓'}</div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:700">${u.name||'-'} <span style="font-size:12px;color:var(--text3)">(${u.id})</span></div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">아이디: ${u.userId||u.id} · 비번: <span style="color:var(--yellow)">${u.pw||'-'}</span></div>
+            ${u.status?`<div style="font-size:11px;color:var(--accent2);margin-top:2px">"${u.status}"</div>`:''}
+          </div>
+          <button onclick="resetUserPw('${u.id}')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--red);cursor:pointer;white-space:nowrap">비번초기화</button>
+        </div>
+      </div>`).join('');
+  }
+
+  container.innerHTML=html;
+};
+window.resetTeacherPw=async function(id){
+  const newPw=prompt(`${id} 선생님 새 비밀번호 입력:`);
+  if(!newPw)return;
+  await updateDoc(doc(db,TEACHERS,id),{pw:newPw});
+  showToast(`${id} 선생님 비밀번호 변경 완료`);
+  loadAdminUsers();
 };
 window.resetUserPw=async function(snum){
   if(!confirm(`${snum} 비밀번호를 학번으로 초기화할까요?`))return;
