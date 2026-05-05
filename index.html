@@ -286,12 +286,10 @@ input,textarea,button,select{font-family:inherit}
 
   <!-- 자료실 -->
   <div id="page-files" class="page">
-    <div class="sec-header"><div class="sec-title">자료실<small>학습 자료 공유</small></div></div>
-    <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-      <input type="file" id="fileInput" multiple accept="*/*" onchange="handleFileUpload(event)" style="display:none">
-      <div class="uz-icon">📤</div>
-      <h4>파일 올리기</h4>
-      <p>탭하여 파일 선택 · PDF, 이미지, HTML 등 모두 가능</p>
+    <div class="sec-header"><div class="sec-title">자료실<small>학습 자료 공유</small></div><button class="btn-sm btn-accent" onclick="openFileLinkModal()">🔗 링크 등록</button></div>
+    <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:14px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:1.7">
+      💡 <b style="color:var(--accent)">링크로 자료 공유!</b><br>
+      Google Drive, GitHub, Notion 등 링크를 등록하면<br>반 친구들과 바로 공유돼요.
     </div>
     <div class="filter-tabs" id="fileFilter"></div>
     <div id="fileList"></div>
@@ -366,17 +364,17 @@ input,textarea,button,select{font-family:inherit}
   </div>
 </div>
 
-<!-- 파일 업로드 -->
+<!-- 링크 등록 모달 -->
 <div class="modal-overlay" id="fileModal">
-  <div class="modal"><div class="modal-handle"></div><h3>📤 파일 업로드</h3>
-    <div id="fileModalPreview" style="font-size:13px;color:var(--text2);margin-bottom:16px;padding:10px;background:var(--surface2);border-radius:10px"></div>
-    <div class="field"><label>파일 설명</label><input type="text" id="fileDesc" placeholder="어떤 자료인지 간단히 설명해주세요"></div>
-    <div class="field"><label>카테고리</label><select id="fileCat"><option>수학</option><option>물리</option><option>화학</option><option>생물</option><option>지구과학</option><option>정보</option><option>영어</option><option>국어</option><option>기타</option></select></div>
-    <div id="uploadProgress" style="display:none;margin-top:12px">
-      <div style="font-size:12px;color:var(--text2);margin-bottom:6px">업로드 중...</div>
-      <div class="progress-bar"><div class="progress-fill" id="uploadProgressBar" style="width:0%"></div></div>
+  <div class="modal"><div class="modal-handle"></div><h3>🔗 자료 링크 등록</h3>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.7">
+      Google Drive, GitHub, Notion, YouTube 등<br>어떤 링크든 등록할 수 있어요!
     </div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="cancelFileUpload()">취소</button><button class="btn-submit" id="uploadBtn" onclick="confirmFileUpload()">올리기</button></div>
+    <div class="field"><label>자료 이름</label><input type="text" id="fileDesc" placeholder="예) 수학 미적분 정리노트"></div>
+    <div class="field"><label>링크 URL</label><input type="url" id="fileLinkUrl" placeholder="https://..."></div>
+    <div class="field"><label>카테고리</label><select id="fileCat"><option>수학</option><option>물리</option><option>화학</option><option>생물</option><option>지구과학</option><option>정보</option><option>영어</option><option>국어</option><option>기타</option></select></div>
+    <div class="field"><label>설명 (선택)</label><input type="text" id="fileMemo" placeholder="어떤 자료인지 간단히"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal('fileModal')">취소</button><button class="btn-submit" onclick="confirmLinkUpload()">등록</button></div>
   </div>
 </div>
 
@@ -446,7 +444,7 @@ input,textarea,button,select{font-family:inherit}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+// Storage 미사용 (링크 공유 방식)
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfwpSmfXP0r5mZpbcDtw77T8WJVRmEwno",
@@ -460,7 +458,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const storage = getStorage(app);
+// Storage 미사용
 
 // ══ 컬렉션 레퍼런스 ══
 const USERS = 'users';
@@ -890,44 +888,29 @@ window.deleteHw=async function(id){
   await deleteDoc(doc(db,HOMEWORKS,id));showToast('삭제됨');
 };
 
-// ══ 자료실 ══
-window.handleFileUpload=function(e){
-  const files=Array.from(e.target.files);
-  if(!files.length)return;
-  pendingFiles=files;
-  document.getElementById('fileModalPreview').textContent=files.map(f=>f.name).join(', ');
+// ══ 자료실 (링크 공유 방식) ══
+window.openFileLinkModal=function(){
   document.getElementById('fileDesc').value='';
-  document.getElementById('uploadProgress').style.display='none';
+  document.getElementById('fileLinkUrl').value='';
+  document.getElementById('fileMemo').value='';
   openModal('fileModal');
-  e.target.value='';
 };
-window.cancelFileUpload=function(){pendingFiles=[];closeModal('fileModal')};
-window.confirmFileUpload=async function(){
-  const desc=document.getElementById('fileDesc').value.trim();
+window.confirmLinkUpload=async function(){
+  const name=document.getElementById('fileDesc').value.trim();
+  const url=document.getElementById('fileLinkUrl').value.trim();
   const cat=document.getElementById('fileCat').value;
-  if(!desc){showToast('설명을 입력해주세요');return}
-  if(!pendingFiles.length)return;
-  document.getElementById('uploadBtn').disabled=true;
-  document.getElementById('uploadProgress').style.display='block';
-
-  for(const f of pendingFiles){
-    const storageRef=ref(storage,`files/${Date.now()}_${f.name}`);
-    const task=uploadBytesResumable(storageRef,f);
-    await new Promise((res,rej)=>{
-      task.on('state_changed',
-        snap=>{const pct=(snap.bytesTransferred/snap.totalBytes)*100;document.getElementById('uploadProgressBar').style.width=pct+'%'},
-        rej,
-        async()=>{
-          const url=await getDownloadURL(task.snapshot.ref);
-          await addDoc(collection(db,FILES),{name:f.name,size:f.size,type:f.type,desc,cat,url,storagePath:task.snapshot.ref.fullPath,author:currentUser.name,snum:currentUser.snum,ts:serverTimestamp(),likes:[]});
-          res();
-        }
-      );
-    });
-  }
-  document.getElementById('uploadBtn').disabled=false;
-  closeModal('fileModal');pendingFiles=[];
-  showToast('📂 업로드 완료!');
+  const memo=document.getElementById('fileMemo').value.trim();
+  if(!name){showToast('자료 이름을 입력하세요');return}
+  if(!url||!url.startsWith('http')){showToast('올바른 링크를 입력하세요');return}
+  // 링크 종류 자동 감지
+  let type='link';
+  if(url.includes('drive.google'))type='gdrive';
+  else if(url.includes('github'))type='github';
+  else if(url.includes('notion'))type='notion';
+  else if(url.includes('youtube')||url.includes('youtu.be'))type='youtube';
+  else if(url.includes('docs.google'))type='gdocs';
+  await addDoc(collection(db,FILES),{name,url,cat,desc:memo||name,type,isLink:true,author:currentUser.name,snum:currentUser.snum,ts:serverTimestamp(),likes:[]});
+  closeModal('fileModal');showToast('🔗 자료 등록 완료!');
 };
 function renderFiles(){
   const cats=['전체','수학','물리','화학','생물','지구과학','정보','영어','국어','기타'];
@@ -937,20 +920,30 @@ function renderFiles(){
   const q2=fileFilterActive==='전체'?query(collection(db,FILES),orderBy('ts','desc')):query(collection(db,FILES),where('cat','==',fileFilterActive),orderBy('ts','desc'));
   const unsub=onSnapshot(q2,snap=>{
     const files=snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(!files.length){container.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px;font-size:13px">파일이 없어요<br>첫 번째로 올려보세요!</div>';return}
+    if(!files.length){container.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px;font-size:13px">자료가 없어요<br>첫 번째로 링크를 등록해보세요! 🔗</div>';return}
+    const typeInfo={
+      gdrive:{emoji:'📁',label:'Google Drive',color:'#1a73e8'},
+      github:{emoji:'💻',label:'GitHub',color:'#6e40c9'},
+      notion:{emoji:'📝',label:'Notion',color:'#ffffff'},
+      youtube:{emoji:'🎬',label:'YouTube',color:'#ef4444'},
+      gdocs:{emoji:'📄',label:'Google Docs',color:'#34a853'},
+      link:{emoji:'🔗',label:'링크',color:'var(--accent)'},
+    };
     container.innerHTML=files.map(f=>{
-      const icon=getFileIcon(f.type,f.name);
       const liked=(f.likes||[]).includes(currentUser.snum);
+      const ti=typeInfo[f.type||'link']||typeInfo.link;
       return`<div class="file-card">
-        <div class="file-icon ${icon.cls}">${icon.emoji}</div>
-        <div class="file-info"><h4>${f.name}</h4><p>${f.desc}</p>
-          <div class="file-meta"><span>${f.author}</span><span>·</span><span>${formatSize(f.size)}</span><span>·</span><span>${timeAgo(f.ts)}</span></div>
+        <div class="file-icon fi-other" style="background:rgba(59,130,246,.1);font-size:26px">${ti.emoji}</div>
+        <div class="file-info">
+          <h4>${f.name}</h4>
+          <p>${f.desc||''}</p>
+          <div class="file-meta"><span style="color:${ti.color};font-weight:600">${ti.label}</span><span>·</span><span>${f.author}</span><span>·</span><span>${timeAgo(f.ts)}</span></div>
           <div style="margin-top:6px"><span class="pill pill-blue">${f.cat}</span></div>
         </div>
         <div class="file-actions">
-          ${f.url?`<a href="${f.url}" target="_blank" download="${f.name}"><button class="file-btn">다운로드</button></a>`:''}
+          <a href="${f.url}" target="_blank" rel="noopener"><button class="file-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)">열기 →</button></a>
           <button class="like-btn ${liked?'liked':''}" onclick="likeFile('${f.id}')">❤️ ${(f.likes||[]).length}</button>
-          ${f.snum===currentUser.snum||currentUser.role==='teacher'?`<button class="file-btn" style="color:var(--red)" onclick="deleteFile('${f.id}','${f.storagePath||''}')">삭제</button>`:''}
+          ${f.snum===currentUser.snum||currentUser.role==='teacher'?`<button class="file-btn" style="color:var(--red)" onclick="deleteFile('${f.id}','')">삭제</button>`:''}
         </div>
       </div>`;
     }).join('');
@@ -965,11 +958,9 @@ window.likeFile=async function(id){
   if(i>=0)await updateDoc(ref2,{likes:arrayRemove(currentUser.snum)});
   else await updateDoc(ref2,{likes:arrayUnion(currentUser.snum)});
 };
-window.deleteFile=async function(id,path){
+window.deleteFile=async function(id){
   if(!confirm('삭제할까요?'))return;
-  await deleteDoc(doc(db,FILES,id));
-  if(path){try{await deleteObject(ref(storage,path))}catch{}}
-  showToast('삭제됨');
+  await deleteDoc(doc(db,FILES,id));showToast('삭제됨');
 };
 
 // ══ 게시판 ══
