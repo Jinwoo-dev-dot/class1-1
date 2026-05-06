@@ -1083,8 +1083,9 @@ function renderDday(){
     const ddays=snap.docs.map(d=>({id:d.id,...d.data()}));
     container.innerHTML=ddays.map(d=>{
       const n=getDday(d.date);
-      const cls=n<=0?'urgent':n<=3?'urgent':n<=7?'soon':'ok';
-      const label=n<0?`D+${Math.abs(n)}`:n===0?'🎯 D-Day!':'D-'+n;
+      if(n<0) return ''; // 지난 D-Day는 표시 안 함
+      const cls=n===0?'urgent':n<=3?'urgent':n<=7?'soon':'ok';
+      const label=n===0?'🎯 D-DAY':'D-'+n;
       return`<div class="dday-card ${cls}" onclick="removeDday('${d.id}')"><div class="dd-label">${d.date}</div><div class="dd-title">${d.name}</div><div class="dd-num">${label}</div></div>`;
     }).join('')+`<div class="dday-card" style="border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px" onclick="openDdayModal()"><div style="font-size:24px">＋</div><div style="font-size:12px;color:var(--text2)">추가</div></div>`;
   });
@@ -1279,7 +1280,7 @@ function renderHomework(){
         ${h.date?`<div class="deadline">📅 기한: ${h.date}${dd!==null?' (D'+( dd<=0?'+':'-')+Math.abs(dd)+')':''}</div>`:''}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
           <span style="font-size:11px;color:var(--text3)">${h.author} 등록 · 완료 ${(h.done||[]).length}명</span>
-          ${h.snum===currentUser.snum||currentUser.role==='teacher'?`<button class="file-btn" onclick="deleteHw('${h.id}')" style="color:var(--red)">삭제</button>`:''}
+          ${h.snum===currentUser.snum||isAdmin(currentUser)?`<button class="file-btn" onclick="deleteHw('${h.id}')" style="color:var(--red)">삭제</button>`:''}
         </div>
       </div>`;
     }).join('');
@@ -1356,7 +1357,7 @@ function renderFiles(){
         <div class="file-actions">
           <a href="${f.url}" target="_blank" rel="noopener"><button class="file-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)">열기 →</button></a>
           <button class="like-btn ${liked?'liked':''}" onclick="likeFile('${f.id}')">❤️ ${(f.likes||[]).length}</button>
-          ${f.snum===currentUser.snum||currentUser.role==='teacher'?`<button class="file-btn" style="color:var(--red)" onclick="deleteFile('${f.id}','')">삭제</button>`:''}
+          ${f.snum===currentUser.snum||isAdmin(currentUser)?`<button class="file-btn" style="color:var(--red)" onclick="deleteFile('${f.id}','')">삭제</button>`:''}
         </div>
       </div>`;
     }).join('');
@@ -1410,7 +1411,7 @@ function renderBoard(){
           <button class="post-stat">❤️ ${(p.likes||[]).length}</button>
           <button class="post-stat">💬 ${(p.comments||[]).length}</button>
           <button class="post-stat">👁️ ${p.views||0}</button>
-          ${p.snum===currentUser.snum?`<button class="file-btn" style="margin-left:auto;color:var(--red)" onclick="event.stopPropagation();deletePost('${p.id}')">삭제</button>`:''}
+          ${p.snum===currentUser.snum||isAdmin(currentUser)?`<button class="file-btn" style="margin-left:auto;color:var(--red)" onclick="event.stopPropagation();deletePost('${p.id}')">삭제</button>`:''}
         </div>
       </div>`).join('');
   });
@@ -1625,7 +1626,7 @@ function renderVoteCard(v){
   const myVotes=v.votes?.[currentUser.snum]||[];
   const hasVoted=myVotes.length>0;
   const isExpired=v.expiresAt&&new Date(v.expiresAt)<new Date();
-  const isOwner=v.createdBy===currentUser.snum||currentUser.snum==='1120';
+  const isOwner=v.createdBy===currentUser.snum||isAdmin(currentUser);
   const totalVoters=Object.keys(v.votes||{}).length;
   // 옵션별 득표수
   const counts=v.options.map((_,i)=>Object.values(v.votes||{}).filter(arr=>arr.includes(i)).length);
@@ -1910,7 +1911,7 @@ function renderMusic(){
           <a href="${s.youtubeUrl}" target="_blank" style="flex:1;text-decoration:none"><button style="width:100%;background:rgba(255,0,0,.1);border:1px solid rgba(255,0,0,.3);border-radius:10px;padding:8px;font-size:12px;font-weight:700;color:#f44;cursor:pointer">▶ 유튜브</button></a>
           <a href="${s.spotifyUrl}" target="_blank" style="flex:1;text-decoration:none"><button style="width:100%;background:rgba(30,215,96,.1);border:1px solid rgba(30,215,96,.3);border-radius:10px;padding:8px;font-size:12px;font-weight:700;color:#1ed760;cursor:pointer">🎧 스포티파이</button></a>
           <button class="like-btn ${liked?'liked':''}" onclick="likeMusic('${s.id}')" style="flex-shrink:0;padding:8px 10px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--text2)">❤️ ${(s.likes||[]).length}</button>
-          ${s.snum===currentUser.snum||currentUser.snum==='1120'?`<button onclick="deleteMusic('${s.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:8px">×</button>`:''}
+          ${s.snum===currentUser.snum||isAdmin(currentUser)?`<button onclick="deleteMusic('${s.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:8px">×</button>`:''}
         </div>
       </div>`;
     }).join('');
