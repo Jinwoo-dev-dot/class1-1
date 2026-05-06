@@ -49,7 +49,7 @@ input,textarea,button,select{font-family:inherit}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .logout-btn{background:none;border:1px solid var(--border);border-radius:10px;padding:6px 12px;font-size:12px;color:var(--text2);cursor:pointer}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(17,24,39,.95);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding:8px 0 env(safe-area-inset-bottom)}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;cursor:pointer;transition:all .2s;border:none;background:none;color:var(--text3)}
+.nav-item{flex:1;min-width:48px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;cursor:pointer;transition:all .2s;border:none;background:none;color:var(--text3)}
 .nav-item.active{color:var(--accent)}.nav-item svg{width:22px;height:22px}.nav-item span{font-size:10px;font-weight:500}
 .page{display:none;padding:20px}.page.active{display:block;animation:fadeIn .25s ease}
 .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -275,7 +275,12 @@ input,textarea,button,select{font-family:inherit}
 
   <!-- 시간표 -->
   <div id="page-timetable" class="page">
-    <div class="sec-header"><div class="sec-title">시간표<small>1학년 1반</small></div><button class="btn-sm btn-accent" onclick="editTimetable()">✏️ 편집</button></div>
+    <div class="sec-header"><div class="sec-title">시간표<small>1학년 1반</small></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn-sm" id="comciBtn" onclick="fetchComcigan()" style="background:rgba(16,185,129,.15);border-color:var(--green);color:var(--green)">🔄 컴시간 불러오기</button>
+        <button class="btn-sm btn-accent" onclick="editTimetable()">✏️ 편집</button>
+      </div>
+    </div>
     <div class="day-tabs" id="dayTabs"></div>
     <div id="timetableView"></div>
   </div>
@@ -313,13 +318,16 @@ input,textarea,button,select{font-family:inherit}
 
   <!-- 놀기 -->
   <div id="page-fun" class="page">
-    <div class="sec-header"><div class="sec-title">🎯 놀기<small>돌림판 &amp; 제비뽑기</small></div></div>
+    <div class="sec-header"><div class="sec-title">🎯 놀기<small>미니게임 모음</small></div></div>
 
-    <!-- 탭 -->
-    <div style="display:flex;gap:8px;margin-bottom:20px">
-      <button id="funTab1" onclick="switchFunTab(1)" style="flex:1;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">🎡 돌림판</button>
-      <button id="funTab2" onclick="switchFunTab(2)" style="flex:1;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">🎲 제비뽑기</button>
-      <button id="funTab3" onclick="switchFunTab(3)" style="flex:1;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">👥 조편성</button>
+    <!-- 탭 (스크롤 가능) -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+      <button id="funTab1" onclick="switchFunTab(1)" style="flex-shrink:0;padding:10px 16px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">🎡 돌림판</button>
+      <button id="funTab2" onclick="switchFunTab(2)" style="flex-shrink:0;padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">🎲 제비뽑기</button>
+      <button id="funTab3" onclick="switchFunTab(3)" style="flex-shrink:0;padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">👥 조편성</button>
+      <button id="funTab4" onclick="switchFunTab(4)" style="flex-shrink:0;padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">💑 천생연분</button>
+      <button id="funTab5" onclick="switchFunTab(5)" style="flex-shrink:0;padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">🧠 과학퀴즈</button>
+      <button id="funTab6" onclick="switchFunTab(6)" style="flex-shrink:0;padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">🟦 테트리스</button>
     </div>
 
     <!-- 돌림판 -->
@@ -409,6 +417,78 @@ input,textarea,button,select{font-family:inherit}
         <div id="groupResultCards"></div>
       </div>
     </div>
+
+    <!-- 천생연분 패널 -->
+    <div id="funPanel4" style="display:none">
+      <div class="card" style="text-align:center;margin-bottom:16px">
+        <div style="font-size:32px;margin-bottom:8px">💑</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:4px">천생연분 매칭</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:16px">20명을 랜덤으로 2명씩 짝지어줘요!</div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button onclick="loadCoupleNames()" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer">👥 반 목록 불러오기</button>
+          <button onclick="shuffleCouples()" style="flex:1;background:linear-gradient(135deg,var(--pink),var(--accent3));border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;color:#fff;cursor:pointer">💘 매칭!</button>
+        </div>
+        <button onclick="resetCouples()" style="background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer">초기화</button>
+      </div>
+      <div id="coupleResult"></div>
+    </div>
+
+    <!-- 과학퀴즈 패널 -->
+    <div id="funPanel5" style="display:none">
+      <div id="quizContainer"></div>
+    </div>
+
+    <!-- 테트리스 패널 -->
+    <div id="funPanel6" style="display:none">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+        <div style="display:flex;gap:16px;font-family:monospace;font-size:13px;color:var(--text2)">
+          <span>점수: <b id="tetScore" style="color:var(--accent)">0</b></span>
+          <span>줄: <b id="tetLines" style="color:var(--green)">0</b></span>
+          <span>레벨: <b id="tetLevel" style="color:var(--yellow)">1</b></span>
+        </div>
+        <div style="position:relative">
+          <canvas id="tetCanvas" width="200" height="400" style="border:2px solid var(--border);border-radius:8px;background:#0a0e1a;display:block"></canvas>
+          <div id="tetOverlay" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);border-radius:8px">
+            <div style="font-family:monospace;font-size:20px;font-weight:700;color:var(--accent);margin-bottom:8px">TETRIS</div>
+            <button onclick="startTetris()" style="background:var(--accent);border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:monospace">START</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="tetMove(-1)" style="width:52px;height:52px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:20px;cursor:pointer">←</button>
+          <button onclick="tetRotate()" style="width:52px;height:52px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:20px;cursor:pointer">↑</button>
+          <button onclick="tetMove(1)" style="width:52px;height:52px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:20px;cursor:pointer">→</button>
+          <button onclick="tetDrop()" style="width:52px;height:52px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:20px;cursor:pointer">↓</button>
+        </div>
+        <div style="font-size:11px;color:var(--text3)">키보드: ← → ↑ 회전 ↓ 빠른낙하 Space 즉시낙하</div>
+      </div>
+    </div>
+
+  
+
+  <!-- 음악 추천 -->
+  <div id="page-music" class="page">
+    <div class="sec-header"><div class="sec-title">🎵 음악 추천<small>반 친구들의 플레이리스트</small></div><button class="btn-sm btn-accent" onclick="openMusicModal()">+ 추천</button></div>
+    <div class="card" style="margin-bottom:20px;border-color:rgba(59,130,246,.3)">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">⏱️ 포모도로 공부 타이머</div>
+      <div style="text-align:center">
+        <div style="font-size:48px;font-weight:700;font-family:monospace;color:var(--accent);margin-bottom:8px" id="timerDisplay">25:00</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:16px" id="timerLabel">공부 시간</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+          <button onclick="setTimer(25,'공부 시간')" class="btn-sm" id="tbtn25" style="background:var(--accent);border-color:var(--accent);color:#fff">25분</button>
+          <button onclick="setTimer(5,'휴식 시간')" class="btn-sm" id="tbtn5">5분</button>
+          <button onclick="setTimer(15,'긴 휴식')" class="btn-sm" id="tbtn15">15분</button>
+          <button onclick="setTimer(45,'집중 모드')" class="btn-sm" id="tbtn45">45분</button>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button onclick="startTimer()" id="timerStartBtn" style="background:var(--green);border:none;border-radius:12px;padding:12px 28px;font-size:15px;font-weight:700;color:#fff;cursor:pointer">▶ 시작</button>
+          <button onclick="resetTimer()" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:15px;font-weight:700;color:var(--text2);cursor:pointer">↺ 초기화</button>
+        </div>
+      </div>
+    </div>
+    <div class="filter-tabs" id="musicFilter"></div>
+    <div id="musicList"></div>
+  </div>
+
   <div id="page-more" class="page">
     <div class="profile-banner">
       <div class="profile-avatar" id="profileAvatar">🎓</div>
@@ -461,6 +541,88 @@ input,textarea,button,select{font-family:inherit}
     <div class="sec-header"><div class="sec-title" style="font-size:15px">👥 등록된 학생 목록</div><button class="btn-sm" onclick="loadAdminUsers()">새로고침</button></div>
     <div id="adminUserList"></div>
   </div>
+</div>
+
+  <!-- 음악 추천 -->
+  <div id="page-music" class="page">
+    <div class="sec-header"><div class="sec-title">🎵 음악 추천<small>반 친구들의 플레이리스트</small></div><button class="btn-sm btn-accent" onclick="openMusicModal()">+ 추천</button></div>
+    <div class="card" style="margin-bottom:20px;border-color:rgba(59,130,246,.3)">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">⏱️ 포모도로 공부 타이머</div>
+      <div style="text-align:center">
+        <div style="font-size:48px;font-weight:700;font-family:monospace;color:var(--accent);margin-bottom:8px" id="timerDisplay">25:00</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:16px" id="timerLabel">공부 시간</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+          <button onclick="setTimer(25,'공부 시간')" class="btn-sm" id="tbtn25" style="background:var(--accent);border-color:var(--accent);color:#fff">25분</button>
+          <button onclick="setTimer(5,'휴식 시간')" class="btn-sm" id="tbtn5">5분</button>
+          <button onclick="setTimer(15,'긴 휴식')" class="btn-sm" id="tbtn15">15분</button>
+          <button onclick="setTimer(45,'집중 모드')" class="btn-sm" id="tbtn45">45분</button>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button onclick="startTimer()" id="timerStartBtn" style="background:var(--green);border:none;border-radius:12px;padding:12px 28px;font-size:15px;font-weight:700;color:#fff;cursor:pointer">▶ 시작</button>
+          <button onclick="resetTimer()" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:15px;font-weight:700;color:var(--text2);cursor:pointer">↺ 초기화</button>
+        </div>
+      </div>
+    </div>
+    <div class="filter-tabs" id="musicFilter"></div>
+    <div id="musicList"></div>
+  </div>
+
+  <div id="page-more" class="page">
+    <div class="profile-banner">
+      <div class="profile-avatar" id="profileAvatar">🎓</div>
+      <div class="profile-info" style="flex:1">
+        <h3 id="profileName">-</h3>
+        <p id="profileSub">1학년 1반</p>
+        <p id="profileStatusTxt" style="font-size:12px;color:var(--accent2);margin-top:4px"></p>
+      </div>
+      <button class="btn-sm" onclick="openProfileEdit()" style="flex-shrink:0">✨ 편집</button>
+    </div>
+    <div class="profile-stats">
+      <div class="stat-box"><div class="sv" id="statFiles">0</div><div class="sl">올린 파일</div></div>
+      <div class="stat-box"><div class="sv" id="statPosts">0</div><div class="sl">작성 글</div></div>
+      <div class="stat-box"><div class="sv" id="statDone">0</div><div class="sl">완료 과제</div></div>
+    </div>
+    <div class="card">
+      <div class="sec-title" style="margin-bottom:12px;font-size:15px">내 할 일 진행률</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--text2)"><span>오늘 체크리스트</span><span id="todoRatioText">0/0</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="todoProgress" style="width:0%"></div></div>
+    </div>
+    <div class="card">
+      <div class="menu-list">
+        <div class="menu-item" onclick="openProfileEdit()"><div class="menu-item-left"><div class="menu-icon" style="background:rgba(139,92,246,.15)">✨</div><div><h4>프로필 꾸미기</h4><p>아이콘·색상·한마디 설정</p></div></div><div class="menu-arrow">›</div></div>
+        <div class="menu-item" onclick="openPwChange()"><div class="menu-item-left"><div class="menu-icon" style="background:rgba(59,130,246,.15)">🔐</div><div><h4>비밀번호 변경</h4><p>계정 보안 관리</p></div></div><div class="menu-arrow">›</div></div>
+        <div class="menu-item" onclick="showAbout()"><div class="menu-item-left"><div class="menu-icon" style="background:rgba(16,185,129,.15)">ℹ️</div><div><h4>앱 정보</h4><p>과학고 1-1반 v2.0 (Firebase)</p></div></div><div class="menu-arrow">›</div></div>
+        <div class="menu-item" id="adminMenuBtn" style="display:none" onclick="goPage('admin')"><div class="menu-item-left"><div class="menu-icon" style="background:rgba(239,68,68,.15)">🛠️</div><div><h4>관리자 페이지</h4><p>학생 관리 · 전체 메시지 전송</p></div></div><div class="menu-arrow">›</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 관리자 페이지 (1120 전용) -->
+  <div id="page-admin" class="page">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <button onclick="goPage('more')" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;color:var(--text2);cursor:pointer">← 뒤로</button>
+      <div class="sec-title">🛠️ 관리자<small>1120 전용</small></div>
+    </div>
+
+    <!-- 전체 메시지 전송 -->
+    <div class="card" style="border-color:rgba(239,68,68,.3);margin-bottom:16px">
+      <div style="font-size:15px;font-weight:700;margin-bottom:4px">📢 전체 공지 메시지</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">모든 학생 홈 화면에 팝업으로 표시됨</div>
+      <textarea id="adminMsg" placeholder="전달할 메시지 입력..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--text);outline:none;resize:vertical;min-height:80px;font-family:inherit"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button onclick="sendAdminMsg()" style="flex:1;background:linear-gradient(135deg,var(--red),#f97316);border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer">📢 전송</button>
+        <button onclick="clearAdminMsg()" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--text2);cursor:pointer">삭제</button>
+      </div>
+    </div>
+
+    <!-- 학생 목록 -->
+    <div class="sec-header"><div class="sec-title" style="font-size:15px">👥 등록된 학생 목록</div><button class="btn-sm" onclick="loadAdminUsers()">새로고침</button></div>
+    <div id="adminUserList"></div>
+
+    <!-- 삭제 요청 목록 -->
+    <div class="sec-header" style="margin-top:20px"><div class="sec-title" style="font-size:15px">🚨 삭제 요청 목록</div><button class="btn-sm" onclick="loadReports()">새로고침</button></div>
+    <div id="adminReportList"></div>
+  </div>
 
   <nav class="bottom-nav">
     <button class="nav-item active" onclick="goPage('home')" id="nav-home"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>홈</span></button>
@@ -470,6 +632,7 @@ input,textarea,button,select{font-family:inherit}
     <button class="nav-item" onclick="goPage('board')" id="nav-board"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15c0 1.1-.9 2-2 2H7l-4 4V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v10z"/></svg><span>게시판</span></button>
     <button class="nav-item" onclick="goPage('vote')" id="nav-vote"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg><span>투표</span></button>
     <button class="nav-item" onclick="goPage('fun')" id="nav-fun"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg><span>놀기</span></button>
+    <button class="nav-item" onclick="goPage('music')" id="nav-music"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg><span>음악</span></button>
     <button class="nav-item" onclick="goPage('more')" id="nav-more"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg><span>더보기</span></button>
   </nav>
 </div>
@@ -489,7 +652,7 @@ input,textarea,button,select{font-family:inherit}
 <!-- 글쓰기 -->
 <div class="modal-overlay" id="postModal">
   <div class="modal"><div class="modal-handle"></div><h3>글쓰기</h3>
-    <div class="field"><label>카테고리</label><select id="postCat"><option>공지</option><option>자유</option><option>질문</option><option>정보공유</option><option>유머</option></select></div>
+    <div class="field"><label>카테고리</label><select id="postCat"><option>공지 (관리자전용)</option><option>자유</option><option>질문</option><option>정보공유</option><option>유머</option></select></div>
     <div class="field"><label>제목</label><input type="text" id="postTitle" placeholder="제목 입력"></div>
     <div class="field"><label>내용</label><textarea id="postBody" placeholder="내용 입력" style="min-height:140px"></textarea></div>
     <div class="modal-actions"><button class="btn-cancel" onclick="closeModal('postModal')">취소</button><button class="btn-submit" onclick="addPost()">게시</button></div>
@@ -610,6 +773,35 @@ input,textarea,button,select{font-family:inherit}
   </div>
 </div>
 
+<!-- 음악 추천 모달 -->
+<div class="modal-overlay" id="musicModal">
+  <div class="modal"><div class="modal-handle"></div><h3>🎵 음악 추천</h3>
+    <div class="field"><label>노래 제목</label><input type="text" id="musicTitle" placeholder="예) Dynamite"></div>
+    <div class="field"><label>아티스트</label><input type="text" id="musicArtist" placeholder="예) BTS"></div>
+    <div class="field"><label>추천 이유 (선택)</label><input type="text" id="musicDesc" placeholder="예) 공부할 때 딱!"></div>
+    <div class="field"><label>장르</label>
+      <select id="musicGenre" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--text);outline:none">
+        <option>팝/팝송</option><option>K-POP</option><option>R&B/소울</option><option>로파이/집중</option><option>클래식</option><option>힙합</option><option>재즈</option><option>기타</option>
+      </select>
+    </div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal('musicModal')">취소</button><button class="btn-submit" onclick="addMusic()">추천하기</button></div>
+  </div>
+</div>
+
+<!-- 신고/삭제요청 모달 -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal"><div class="modal-handle"></div>
+    <h3>🚨 삭제 요청</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.7">본인이 올린 것만 직접 삭제할 수 있어요.<br>삭제를 요청하려면 <b style="color:var(--accent)">1120(황진우)</b>에게 메시지를 보내세요.</p>
+    <div style="background:var(--surface2);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--text2)" id="reportTarget"></div>
+    <div class="field"><label>요청 사유</label><textarea id="reportMsg" placeholder="왜 삭제가 필요한지 설명해주세요..." style="min-height:80px;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--text);outline:none;resize:vertical"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('reportModal')">취소</button>
+      <button class="btn-submit" onclick="sendReport()">📨 1120에게 전송</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- ═══════════════ FIREBASE + APP SCRIPT ═══════════════ -->
@@ -657,6 +849,17 @@ const DAYS = ['월','화','수','목','금'];
 const PERIODS = ['1교시','2교시','3교시','4교시','5교시','6교시','7교시'];
 const AVATAR_COLORS = ['#3b82f6','#8b5cf6','#ec4899','#10b981','#f59e0b','#06b6d4','#ef4444'];
 const CAT_COLORS = {'공지':'pill-blue','자유':'pill-green','질문':'pill-yellow','정보공유':'pill-purple','유머':'pill-red'};
+
+
+// ══ 권한 관리 ══
+const ADMINS = ['1103','1113','1120']; // 반장, 부반장, 회장 + 교사
+function isAdmin(user){
+  if(!user) return false;
+  return ADMINS.includes(user.snum) || user.role==='teacher';
+}
+function isSuperAdmin(user){
+  return user?.snum==='1120' || user?.role==='teacher';
+}
 
 function avatarColor(str) { let h=0; for(let c of (str||'x')) h=(h<<5)-h+c.charCodeAt(0); return AVATAR_COLORS[Math.abs(h)%AVATAR_COLORS.length]; }
 function initials(name) { return (name||'?')[0].toUpperCase(); }
@@ -719,9 +922,10 @@ function goPage(name){
   if(name==='files')renderFiles();
   if(name==='board')renderBoard();
   if(name==='vote')renderVote();
+  if(name==='music'){renderMusic();}
   if(name==='more')renderMore();
-  if(name==='fun'){renderWheelItems();drawWheel();}
-  if(name==='admin'){loadAdminUsers();}
+  if(name==='fun'){renderWheelItems();drawWheel();initTetrisUI();}
+  if(name==='admin'){loadAdminUsers();loadReports();}
 }
 
 // ══ 로그인 탭 ══
@@ -844,6 +1048,7 @@ function initMain(){
   document.getElementById('homeDate').textContent=formatDate(now);
   document.getElementById('userChip').textContent=displayName(currentUser);
   startAdminMsgListener();
+  startAdminNotifListener();
   setTimeout(showDailyQuote, 800);
   goPage('home');
 }
@@ -1177,7 +1382,9 @@ window.addPost=async function(){
   const body=document.getElementById('postBody').value.trim();
   const cat=document.getElementById('postCat').value;
   if(!title||!body){showToast('제목과 내용을 입력하세요');return}
-  await addDoc(collection(db,POSTS),{title,body,cat,author:currentUser.name,snum:currentUser.snum,ts:serverTimestamp(),likes:[],comments:[],views:0});
+  if(cat==='공지 (관리자전용)'&&!isAdmin(currentUser)){showToast('❌ 공지는 반장/부반장/회장/교사만 작성할 수 있어요');return}
+  const saveCat=cat.replace(' (관리자전용)','');
+  await addDoc(collection(db,POSTS),{title,body,cat:saveCat,author:currentUser.name,snum:currentUser.snum,ts:serverTimestamp(),likes:[],comments:[],views:0});
   closeModal('postModal');
   document.getElementById('postTitle').value='';document.getElementById('postBody').value='';
   showToast('✏️ 게시글 등록!');
@@ -1203,7 +1410,7 @@ function renderBoard(){
           <button class="post-stat">❤️ ${(p.likes||[]).length}</button>
           <button class="post-stat">💬 ${(p.comments||[]).length}</button>
           <button class="post-stat">👁️ ${p.views||0}</button>
-          ${p.snum===currentUser.snum||currentUser.role==='teacher'?`<button class="file-btn" style="margin-left:auto;color:var(--red)" onclick="event.stopPropagation();deletePost('${p.id}')">삭제</button>`:''}
+          ${p.snum===currentUser.snum?`<button class="file-btn" style="margin-left:auto;color:var(--red)" onclick="event.stopPropagation();deletePost('${p.id}')">삭제</button>`:''}
         </div>
       </div>`).join('');
   });
@@ -1262,7 +1469,7 @@ async function renderMore(){
   av.textContent=emoji;av.style.background=`linear-gradient(135deg,${col},#06b6d4)`;
   // 관리자 버튼 표시
   const adminBtn=document.getElementById('adminMenuBtn');
-  if(adminBtn)adminBtn.style.display=currentUser.snum==='1120'?'flex':'none';
+  if(adminBtn)adminBtn.style.display=isAdmin(currentUser)?'flex':'none';
 
   // 통계
   const filesSnap=await getDocs(query(collection(db,FILES),where('snum','==',currentUser.snum)));
@@ -1502,6 +1709,272 @@ window.deleteVote=async function(id){
   await deleteDoc(doc(db,VOTES,id));
   showToast('삭제됨');
 };
+
+// ══ 컴시간 자동 파싱 ══
+const PROXY = 'https://api.allorigins.win/get?url=';
+const COMCI = 'http://comci.net:4082';
+
+window.fetchComcigan = async function(){
+  const btn = document.getElementById('comciBtn');
+  btn.textContent = '⏳ 불러오는 중...';
+  btn.disabled = true;
+  try {
+    showToast('컴시간 연결 중...');
+    const stRes = await fetch(PROXY + encodeURIComponent(COMCI + '/st'));
+    const stData = await stRes.json();
+    const html = stData.contents;
+    if(!html) throw new Error('컴시간 응답 없음');
+
+    const comciganCode = (html.match(/\.[/][0-9]+[?][0-9]+l/) || [])[0]?.slice(1);
+    const code0 = (html.match(/sc_data\('[0-9]+_/) || [])[0]?.slice(9,-1);
+    const code1 = (html.match(/성명=자료\.자료[0-9]+/) || [])[0]?.slice(8);
+    const code2 = (html.match(/자료\.자료[0-9]+\[sb\]/) || [])[0]?.slice(5,-4);
+    const code3 = (html.match(/=H시간표\.자료[0-9]+/) || [])[0]?.slice(8);
+    const code4 = (html.match(/일일자료=Q자료\(자료\.자료[0-9]+/) || [])[0]?.slice(14);
+    const code5 = (html.match(/원자료=Q자료\(자료\.자료[0-9]+/) || [])[0]?.slice(13);
+    if(!code0) throw new Error('코드 파싱 실패 - 컴시간 구조 변경됨');
+
+    const schUrl = COMCI+'/'+comciganCode?.slice(0,7)+btoa(code0+'_경기북과학고');
+    const schRes = await fetch(PROXY+encodeURIComponent(schUrl));
+    const schJson = JSON.parse((await schRes.json()).contents?.split('\n')[0]||'{}');
+    const schoolList = schJson[code1]||[];
+    let schoolCode = null;
+    for(const s of schoolList){
+      if(String(s[parseInt(code2)]||s[3]||'').includes('경기북과학고')){schoolCode=s[0];break;}
+    }
+    if(!schoolCode) throw new Error('학교를 찾을 수 없어요');
+
+    const ttUrl = COMCI+comciganCode?.slice(0,7)+btoa(code0+'_'+schoolCode+'_0_1');
+    const ttRes = await fetch(PROXY+encodeURIComponent(ttUrl));
+    const ttJson = JSON.parse((await ttRes.json()).contents?.split('\n')[0]||'{}');
+
+    const rawTT=ttJson[code3], subjectMap=ttJson[code4], teacherMap=ttJson[code5];
+    if(!rawTT) throw new Error('시간표 데이터 없음');
+    const g=rawTT[1]?.[1];
+    if(!g) throw new Error('1-1반 데이터 없음');
+
+    const tt=Array.from({length:5},()=>Array.from({length:7},()=>['','','','']));
+    for(let d=0;d<5;d++){
+      const day=g[d+1]||[];
+      for(let p=0;p<7;p++){
+        const cell=day[p+1];if(!cell)continue;
+        tt[d][p]=[subjectMap?.[Math.floor(cell/100)]||'',teacherMap?.[cell%100]||'','',''];
+      }
+    }
+    await setDoc(doc(db,TIMETABLE,'main'),{data:ttToFirestore(tt),updatedBy:currentUser.snum,updatedAt:serverTimestamp(),source:'comcigan'});
+    window._currentTT=tt;renderTimetable();
+    showToast('✅ 컴시간 시간표 불러오기 완료!');
+  } catch(e){
+    console.error('컴시간 오류:',e);
+    showToast('❌ 실패: '+e.message);
+  } finally {
+    btn.textContent='🔄 컴시간 불러오기';btn.disabled=false;
+  }
+};
+
+
+// ══ 신고/삭제요청 시스템 ══
+const REPORTS_COL = 'reports';
+let _reportData = null;
+
+window.reportToAdmin = function(type, id, name){
+  _reportData = {type, id, name};
+  document.getElementById('reportTarget').innerHTML =
+    `<b>${type==='file'?'📂 파일':type==='hw'?'📝 과제':'💬 게시글'}:</b> ${name}`;
+  document.getElementById('reportMsg').value = '';
+  openModal('reportModal');
+};
+
+window.sendReport = async function(){
+  const msg = document.getElementById('reportMsg').value.trim();
+  if(!msg){showToast('사유를 입력해주세요');return}
+  if(!_reportData)return;
+
+  // Firestore reports 컬렉션에 저장 (1120이 관리자 페이지에서 확인)
+  await addDoc(collection(db, REPORTS_COL), {
+    type: _reportData.type,
+    targetId: _reportData.id,
+    targetName: _reportData.name,
+    msg,
+    from: currentUser.name,
+    fromSnum: currentUser.snum,
+    ts: serverTimestamp(),
+    resolved: false
+  });
+
+  // adminMsg처럼 1120한테 알림
+  const notifRef = doc(db, 'adminNotif', 'latest');
+  await setDoc(notifRef, {
+    text: `🚨 ${currentUser.name}(${currentUser.snum})님이 삭제 요청을 보냈어요!\n[${_reportData.type==='file'?'파일':_reportData.type==='hw'?'과제':'게시글'}] ${_reportData.name}\n사유: ${msg}`,
+    ts: serverTimestamp(),
+    read: false,
+    from: currentUser.snum
+  });
+
+  closeModal('reportModal');
+  _reportData = null;
+  showToast('📨 삭제 요청을 1120에게 전송했어요!');
+};
+
+// 1120 알림 리스너
+function startAdminNotifListener(){
+  if(currentUser.snum !== '1120') return;
+  onSnapshot(doc(db,'adminNotif','latest'), snap=>{
+    if(!snap.exists()) return;
+    const data = snap.data();
+    if(data.read || data.from === '1120') return;
+    // 안 읽은 알림이면 팝업
+    const seen = sessionStorage.getItem('seenNotif');
+    const tsKey = data.ts?.seconds || '';
+    if(seen === String(tsKey)) return;
+    sessionStorage.setItem('seenNotif', String(tsKey));
+    showAdminNotifPopup(data.text);
+    // 읽음 처리
+    updateDoc(doc(db,'adminNotif','latest'), {read: true});
+  });
+}
+
+function showAdminNotifPopup(text){
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9000;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border:2px solid var(--yellow);border-radius:24px;padding:28px;max-width:360px;width:100%;box-shadow:0 0 40px rgba(245,158,11,.3)">
+      <div style="font-size:24px;text-align:center;margin-bottom:8px">🚨</div>
+      <div style="font-size:11px;color:var(--yellow);font-weight:700;text-align:center;margin-bottom:12px;letter-spacing:2px">삭제 요청 알림</div>
+      <div style="font-size:14px;line-height:1.7;color:var(--text);margin-bottom:20px;white-space:pre-wrap">${text}</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:14px;font-weight:700;color:var(--text2);cursor:pointer">나중에</button>
+        <button onclick="goPage('admin');this.closest('div[style*=fixed]').remove()" style="flex:1;background:linear-gradient(135deg,var(--yellow),var(--red));border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer">확인하기</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+const MUSIC_COL='music';
+let musicFilterActive='전체';
+
+window.openMusicModal=()=>{
+  document.getElementById('musicTitle').value='';
+  document.getElementById('musicArtist').value='';
+  document.getElementById('musicDesc').value='';
+  openModal('musicModal');
+};
+
+window.addMusic=async function(){
+  const title=document.getElementById('musicTitle').value.trim();
+  const artist=document.getElementById('musicArtist').value.trim();
+  const desc=document.getElementById('musicDesc').value.trim();
+  const genre=document.getElementById('musicGenre').value;
+  if(!title||!artist){showToast('제목과 아티스트를 입력하세요');return}
+  const query2=encodeURIComponent(title+' '+artist);
+  const melonUrl='https://www.melon.com/search/total/index.htm?q='+query2;
+  const youtubeUrl='https://www.youtube.com/results?search_query='+query2;
+  const spotifyUrl='https://open.spotify.com/search/'+query2;
+  await addDoc(collection(db,MUSIC_COL),{
+    title,artist,desc,genre,melonUrl,youtubeUrl,spotifyUrl,
+    author:currentUser.name,snum:currentUser.snum,ts:serverTimestamp(),likes:[]
+  });
+  closeModal('musicModal');
+  showToast('🎵 추천 완료!');
+};
+
+function renderMusic(){
+  const genres=['전체','팝/팝송','K-POP','R&B/소울','로파이/집중','클래식','힙합','재즈','기타'];
+  document.getElementById('musicFilter').innerHTML=genres.map(g=>`<div class="filter-tab ${g===musicFilterActive?'active':''}" onclick="musicSetFilter('${g}')">${g}</div>`).join('');
+  const container=document.getElementById('musicList');
+  container.innerHTML='<div style="text-align:center;color:var(--text3);padding:20px;font-size:13px">로딩 중...</div>';
+  const genreColors={'K-POP':'var(--pink)','팝/팝송':'var(--accent)','R&B/소울':'var(--accent3)','로파이/집중':'var(--green)','클래식':'var(--yellow)','힙합':'var(--red)','재즈':'var(--accent2)'};
+  const q2=musicFilterActive==='전체'
+    ?query(collection(db,MUSIC_COL),orderBy('ts','desc'))
+    :query(collection(db,MUSIC_COL),where('genre','==',musicFilterActive),orderBy('ts','desc'));
+  const unsub=onSnapshot(q2,snap=>{
+    const songs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!songs.length){container.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px;font-size:13px">추천곡이 없어요<br>첫 번째로 추천해보세요! 🎵</div>';return;}
+    container.innerHTML=songs.map(s=>{
+      const liked=(s.likes||[]).includes(currentUser.snum);
+      const col=genreColors[s.genre]||'var(--text2)';
+      return`<div class="card" style="margin-bottom:10px">
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="width:48px;height:48px;border-radius:12px;background:${col}22;border:1px solid ${col}44;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎵</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:15px;font-weight:700;margin-bottom:2px">${s.title}</div>
+            <div style="font-size:13px;color:var(--text2);margin-bottom:4px">${s.artist}</div>
+            ${s.desc?`<div style="font-size:12px;color:var(--text3);margin-bottom:6px">"${s.desc}"</div>`:''}
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span style="background:${col}22;color:${col};font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">${s.genre}</span>
+              <span style="font-size:11px;color:var(--text3)">${s.author} · ${timeAgo(s.ts)}</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:12px">
+          <a href="${s.melonUrl}" target="_blank" style="flex:1;text-decoration:none"><button style="width:100%;background:rgba(0,200,81,.15);border:1px solid rgba(0,200,81,.4);border-radius:10px;padding:8px;font-size:12px;font-weight:700;color:#00c851;cursor:pointer">🍈 멜론</button></a>
+          <a href="${s.youtubeUrl}" target="_blank" style="flex:1;text-decoration:none"><button style="width:100%;background:rgba(255,0,0,.1);border:1px solid rgba(255,0,0,.3);border-radius:10px;padding:8px;font-size:12px;font-weight:700;color:#f44;cursor:pointer">▶ 유튜브</button></a>
+          <a href="${s.spotifyUrl}" target="_blank" style="flex:1;text-decoration:none"><button style="width:100%;background:rgba(30,215,96,.1);border:1px solid rgba(30,215,96,.3);border-radius:10px;padding:8px;font-size:12px;font-weight:700;color:#1ed760;cursor:pointer">🎧 스포티파이</button></a>
+          <button class="like-btn ${liked?'liked':''}" onclick="likeMusic('${s.id}')" style="flex-shrink:0;padding:8px 10px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--text2)">❤️ ${(s.likes||[]).length}</button>
+          ${s.snum===currentUser.snum||currentUser.snum==='1120'?`<button onclick="deleteMusic('${s.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:8px">×</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  });
+  _unsubscribers.push(unsub);
+}
+
+window.musicSetFilter=function(g){musicFilterActive=g;renderMusic();};
+window.likeMusic=async function(id){
+  const ref2=doc(db,MUSIC_COL,id);const snap=await getDoc(ref2);
+  const likes=snap.data().likes||[];const i=likes.indexOf(currentUser.snum);
+  if(i>=0)await updateDoc(ref2,{likes:arrayRemove(currentUser.snum)});
+  else await updateDoc(ref2,{likes:arrayUnion(currentUser.snum)});
+};
+window.deleteMusic=async function(id){
+  if(!confirm('삭제할까요?'))return;
+  await deleteDoc(doc(db,MUSIC_COL,id));showToast('삭제됨');
+};
+
+// ══ 포모도로 타이머 ══
+let timerInterval=null,timerRemain=25*60,timerTotal=25*60,timerRunning=false,timerLabelText='공부 시간';
+window.setTimer=function(min,label){
+  if(timerRunning)return;
+  timerRemain=min*60;timerTotal=min*60;timerLabelText=label;
+  updateTimerDisplay();
+  document.getElementById('timerLabel').textContent=label;
+  ['25','5','15','45'].forEach(m=>{const b=document.getElementById('tbtn'+m);if(b){b.style.background='var(--surface2)';b.style.borderColor='var(--border)';b.style.color='var(--text2)';}});
+  const active=document.getElementById('tbtn'+min);
+  if(active){active.style.background='var(--accent)';active.style.borderColor='var(--accent)';active.style.color='#fff';}
+};
+window.startTimer=function(){
+  if(timerRunning){
+    clearInterval(timerInterval);timerRunning=false;
+    document.getElementById('timerStartBtn').textContent='▶ 시작';
+    document.getElementById('timerStartBtn').style.background='var(--green)';
+  } else {
+    timerRunning=true;
+    document.getElementById('timerStartBtn').textContent='⏸ 일시정지';
+    document.getElementById('timerStartBtn').style.background='var(--yellow)';
+    timerInterval=setInterval(()=>{
+      timerRemain--;updateTimerDisplay();
+      if(timerRemain<=0){
+        clearInterval(timerInterval);timerRunning=false;
+        document.getElementById('timerStartBtn').textContent='▶ 시작';
+        document.getElementById('timerStartBtn').style.background='var(--green)';
+        showToast('⏰ '+timerLabelText+' 완료!');
+        if(navigator.vibrate)navigator.vibrate([300,100,300]);
+      }
+    },1000);
+  }
+};
+window.resetTimer=function(){
+  clearInterval(timerInterval);timerRunning=false;timerRemain=timerTotal;
+  updateTimerDisplay();
+  document.getElementById('timerStartBtn').textContent='▶ 시작';
+  document.getElementById('timerStartBtn').style.background='var(--green)';
+};
+function updateTimerDisplay(){
+  const m=Math.floor(timerRemain/60).toString().padStart(2,'0');
+  const s=(timerRemain%60).toString().padStart(2,'0');
+  const el=document.getElementById('timerDisplay');
+  if(el){el.textContent=m+':'+s;const pct=timerRemain/timerTotal;el.style.color=pct>0.5?'var(--accent)':pct>0.2?'var(--yellow)':'var(--red)';}
+}
+
 let _groupMembers=[];
 let _selectedCase=null;
 
@@ -1511,10 +1984,10 @@ window.calcGroups=async function(){
   if(isNaN(total)||isNaN(size)||total<2||size<2||size>total){showToast('올바른 숫자를 입력하세요');return}
   try{
     const snap=await getDocs(collection(db,USERS));
-    const names=snap.empty?[]:snap.docs.map(d=>d.data().name||d.id);
-    _groupMembers=Array.from({length:total},(_,i)=>names[i]||`${1101+i}`);
+    const names=snap.empty?[]:snap.docs.map(d=>({id:d.id,name:d.data().name||d.id}));
+    _groupMembers=Array.from({length:total},(_,i)=>names[i]||{id:`${1101+i}`,name:`${1101+i}`});
   }catch{
-    _groupMembers=Array.from({length:total},(_,i)=>`${1101+i}`);
+    _groupMembers=Array.from({length:total},(_,i)=>({id:`${1101+i}`,name:`${1101+i}`}));
   }
   const cases=getGroupCases(total,size);
   if(!cases.length){showToast('나눌 수 없는 조합이에요');return}
@@ -1585,7 +2058,14 @@ function doShuffle(){
         <div style="font-size:14px;font-weight:700">${i+1}조 <span style="font-size:12px;color:var(--text3)">(${g.members.length}명)</span></div>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
-        ${g.members.map(m=>`<div style="background:${g.color}22;border:1px solid ${g.color}66;border-radius:20px;padding:6px 14px;font-size:14px;font-weight:600">${m}</div>`).join('')}
+        ${g.members.map(m=>{
+          const name=typeof m==='object'?m.name:m;
+          const id=typeof m==='object'?m.id:'';
+          return`<div style="background:${g.color}22;border:1px solid ${g.color}66;border-radius:20px;padding:6px 14px;font-size:14px;font-weight:600;text-align:center">
+            <div>${name}</div>
+            ${id&&id!==name?`<div style="font-size:10px;opacity:0.7;margin-top:1px">${id}</div>`:''}
+          </div>`;
+        }).join('')}
       </div>
     </div>`).join('');
   document.getElementById('groupResult').style.display='block';
@@ -1720,6 +2200,49 @@ window.loadAdminUsers=async function(){
 
   container.innerHTML=html;
 };
+window.loadReports=async function(){
+  const container=document.getElementById('adminReportList');
+  if(!container)return;
+  container.innerHTML='<div style="text-align:center;color:var(--text3);padding:16px;font-size:13px">불러오는 중...</div>';
+  const snap=await getDocs(query(collection(db,REPORTS_COL),orderBy('ts','desc')));
+  if(snap.empty){container.innerHTML='<div style="text-align:center;color:var(--text3);padding:16px;font-size:13px">신고 없음 ✅</div>';return;}
+  container.innerHTML=snap.docs.map(d=>{
+    const r={id:d.id,...d.data()};
+    return`<div class="card" style="margin-bottom:8px;border-color:${r.resolved?'var(--border)':'rgba(245,158,11,.4)'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <span style="font-size:11px;font-weight:700;color:${r.resolved?'var(--green)':'var(--yellow)'}">${r.resolved?'✅ 처리됨':'🚨 미처리'}</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:8px">${r.type==='file'?'📂 파일':r.type==='hw'?'📝 과제':'💬 게시글'}</span>
+        </div>
+        <span style="font-size:11px;color:var(--text3)">${timeAgo(r.ts)}</span>
+      </div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">${r.targetName||'-'}</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">사유: ${r.msg}</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">요청자: ${r.from}(${r.fromSnum})</div>
+      <div style="display:flex;gap:8px">
+        ${!r.resolved?`<button onclick="resolveReport('${r.id}')" style="flex:1;background:var(--green);border:none;border-radius:10px;padding:8px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">✅ 처리완료</button>`:''}
+        <button onclick="deleteReportTarget('${r.type}','${r.targetId}','${r.id}')" style="flex:1;background:var(--red);border:none;border-radius:10px;padding:8px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">🗑️ 실제 삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+};
+
+window.resolveReport=async function(id){
+  await updateDoc(doc(db,REPORTS_COL,id),{resolved:true});
+  loadReports();showToast('처리 완료 표시됨');
+};
+
+window.deleteReportTarget=async function(type,targetId,reportId){
+  if(!confirm('실제로 삭제할까요?'))return;
+  try{
+    if(type==='file')await deleteDoc(doc(db,FILES,targetId));
+    else if(type==='hw')await deleteDoc(doc(db,HOMEWORKS,targetId));
+    else await deleteDoc(doc(db,POSTS,targetId));
+    await updateDoc(doc(db,REPORTS_COL,reportId),{resolved:true});
+    loadReports();showToast('🗑️ 삭제 완료!');
+  }catch(e){showToast('삭제 실패: '+e.message);}
+};
+
 window.resetTeacherPw=async function(id){
   const newPw=prompt(`${id} 선생님 새 비밀번호 입력:`);
   if(!newPw)return;
@@ -1773,14 +2296,286 @@ let excludedStudents = new Set();
 const WHEEL_COLORS = ['#3b82f6','#8b5cf6','#ec4899','#10b981','#f59e0b','#06b6d4','#ef4444','#f97316','#14b8a6','#6366f1','#84cc16','#a855f7','#14b8a6','#fb923c','#60a5fa','#f472b6','#34d399','#fbbf24','#38bdf8','#e879f9'];
 
 window.switchFunTab=function(n){
-  [1,2,3].forEach(i=>{
+  [1,2,3,4,5,6].forEach(i=>{
     const p=document.getElementById('funPanel'+i);
     const b=document.getElementById('funTab'+i);
     if(p)p.style.display=i===n?'':'none';
     if(b){b.style.background=i===n?'var(--accent)':'var(--surface)';b.style.color=i===n?'#fff':'var(--text2)';b.style.border=i===n?'none':'1px solid var(--border)';}
   });
   if(n===1)drawWheel();
+  if(n===5)initQuiz();
+  if(n===6)initTetrisUI();
 };
+
+// ══ 천생연분 ══
+let _coupleMembers=[];
+window.loadCoupleNames=async function(){
+  try{
+    const snap=await getDocs(collection(db,USERS));
+    _coupleMembers=snap.empty
+      ? Array.from({length:20},(_,i)=>({id:`${1101+i}`,name:`${1101+i}`}))
+      : snap.docs.sort((a,b)=>a.id.localeCompare(b.id)).map(d=>({id:d.id,name:d.data().name||d.id}));
+  }catch{
+    _coupleMembers=Array.from({length:20},(_,i)=>({id:`${1101+i}`,name:`${1101+i}`}));
+  }
+  showToast('✅ 반 목록 불러오기 완료!');
+};
+window.shuffleCouples=function(){
+  if(_coupleMembers.length<2){showToast('먼저 반 목록을 불러오세요!');return}
+  const members=[..._coupleMembers];
+  // 완전 셔플
+  for(let i=members.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[members[i],members[j]]=[members[j],members[i]];}
+  // 2명씩 짝짓기
+  const couples=[];
+  for(let i=0;i<members.length-1;i+=2)couples.push([members[i],members[i+1]]);
+  if(members.length%2!==0)couples.push([members[members.length-1],{id:'',name:'🔮 짝 없음'}]);
+  const hearts=['💑','💕','💞','💗','💓','💖','💝','❤️','🫶','💫'];
+  const container=document.getElementById('coupleResult');
+  container.innerHTML=couples.map((c,i)=>`
+    <div class="card" style="margin-bottom:10px;border-color:rgba(236,72,153,.3)">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:22px">${hearts[i%hearts.length]}</div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:space-between">
+          <div style="text-align:center;flex:1">
+            <div style="font-size:15px;font-weight:700">${c[0].name}</div>
+            <div style="font-size:10px;color:var(--text3)">${c[0].id}</div>
+          </div>
+          <div style="font-size:18px;color:var(--pink);margin:0 8px">💘</div>
+          <div style="text-align:center;flex:1">
+            <div style="font-size:15px;font-weight:700">${c[1].name}</div>
+            <div style="font-size:10px;color:var(--text3)">${c[1].id}</div>
+          </div>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--pink)">${Math.floor(Math.random()*31)+70}%</div>
+      </div>
+    </div>`).join('');
+  showToast('💘 매칭 완료!');
+};
+window.resetCouples=function(){_coupleMembers=[];document.getElementById('coupleResult').innerHTML='';showToast('초기화됨');};
+
+// ══ 과학 퀴즈 ══
+const QUIZ_QUESTIONS=[
+  {q:"수소 원자의 바닥 상태에서 전자의 에너지(eV)는?",a:["−13.6 eV","−3.4 eV","−1.5 eV","0 eV"],ans:0,exp:"수소 원자 바닥 상태(n=1) 에너지 E₁ = −13.6 eV"},
+  {q:"광전 효과에서 빛의 세기를 증가시키면?",a:["광전자 속도 증가","광전자 수 증가","일함수 감소","진동수 증가"],ans:1,exp:"빛의 세기 ∝ 광자 수 ∝ 방출 광전자 수. 속도는 진동수에 의존"},
+  {q:"이상 기체의 내부 에너지는 무엇에만 의존하는가?",a:["압력","부피","온도","엔트로피"],ans:2,exp:"이상 기체 U = (f/2)nRT — 온도에만 의존"},
+  {q:"pH 7인 용액에서 [H⁺]는?",a:["10⁻⁷ mol/L","10⁻³ mol/L","10⁻¹⁴ mol/L","1 mol/L"],ans:0,exp:"pH = −log[H⁺], pH=7이면 [H⁺]=10⁻⁷ mol/L"},
+  {q:"DNA 이중나선에서 아데닌(A)과 상보적으로 결합하는 염기는?",a:["구아닌(G)","사이토신(C)","타이민(T)","유라실(U)"],ans:2,exp:"DNA: A−T, G−C 염기쌍. RNA에서는 A−U"},
+  {q:"뉴턴의 만유인력 법칙 F=Gm₁m₂/r² 에서 G의 SI 단위는?",a:["N·m/kg","N·m²/kg²","kg²/N·m²","m³/kg·s²"],ans:1,exp:"[G] = N·m²/kg² = m³/(kg·s²)"},
+  {q:"1몰의 이상 기체가 등온 과정에서 부피가 2배가 될 때 흡수한 열량은? (T=300K)",a:["0 J","RT ln2 ≈ 1729 J","3RT/2","RT"],ans:1,exp:"등온 과정 ΔU=0, Q=W=nRT ln(V₂/V₁)=RT ln2"},
+  {q:"원운동하는 물체의 각속도가 2배가 되면 구심력은 몇 배?",a:["2배","4배","√2배","8배"],ans:1,exp:"F=mω²r, ω가 2배→F는 4배"},
+  {q:"베르누이 방정식 P+½ρv²+ρgh=const 에서 유속이 빠를수록?",a:["압력 증가","압력 감소","밀도 증가","점성 증가"],ans:1,exp:"유속 ↑ → 동압 ½ρv² ↑ → 정압 P ↓"},
+  {q:"탄소 동위원소 ¹⁴C의 양성자, 중성자, 전자 수는?",a:["6,8,6","6,6,8","8,6,6","7,7,6"],ans:0,exp:"¹⁴₆C: 양성자=6, 질량수=14, 중성자=14-6=8, 전자=6"},
+  {q:"광자 한 개의 에너지 E=hf 에서 h는?",a:["볼츠만 상수","플랑크 상수","아보가드로 수","패러데이 상수"],ans:1,exp:"h=6.626×10⁻³⁴ J·s (플랑크 상수)"},
+  {q:"반도체에서 n형 반도체를 만들기 위해 첨가하는 불순물은?",a:["3족 원소 (붕소)","5족 원소 (인)","2족 원소","6족 원소"],ans:1,exp:"5족(인, 비소): 전자 1개 여분 → n형. 3족: 정공 → p형"},
+  {q:"화학 반응에서 활성화 에너지를 낮추는 물질은?",a:["산화제","환원제","촉매","억제제"],ans:2,exp:"촉매는 활성화 에너지를 낮춰 반응 속도를 증가시킴"},
+  {q:"세포 분열에서 DNA 복제가 일어나는 시기는?",a:["G₁기","S기","G₂기","M기"],ans:1,exp:"S(Synthesis)기에 DNA 복제 → 염색체 수는 그대로, DNA량 2배"},
+  {q:"등가속도 운동에서 v²=v₀²+2as를 이용할 때 필요 없는 정보는?",a:["초속도 v₀","가속도 a","변위 s","시간 t"],ans:3,exp:"v²=v₀²+2as에는 시간 t가 포함되지 않음"},
+];
+
+let quizState={idx:0,score:0,answered:false,questions:[]};
+
+function initQuiz(){
+  // 문제 랜덤 셔플
+  const shuffled=[...QUIZ_QUESTIONS].sort(()=>Math.random()-0.5).slice(0,10);
+  quizState={idx:0,score:0,answered:false,questions:shuffled};
+  renderQuiz();
+}
+function renderQuiz(){
+  const container=document.getElementById('quizContainer');
+  const q=quizState.questions[quizState.idx];
+  if(!q){
+    container.innerHTML=`
+      <div class="card" style="text-align:center;padding:32px">
+        <div style="font-size:48px;margin-bottom:12px">🏆</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:8px">퀴즈 완료!</div>
+        <div style="font-size:32px;font-weight:700;color:var(--accent);margin-bottom:4px">${quizState.score} / ${quizState.questions.length}</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:24px">${quizState.score>=8?'🎉 대단해! 과학 천재!':quizState.score>=5?'👍 잘했어!':'📚 조금 더 공부하자!'}</div>
+        <button onclick="initQuiz()" style="background:var(--accent);border:none;border-radius:12px;padding:12px 28px;font-size:14px;font-weight:700;color:#fff;cursor:pointer">다시 풀기</button>
+      </div>`;
+    return;
+  }
+  container.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <span style="font-size:13px;color:var(--text2)">${quizState.idx+1} / ${quizState.questions.length}</span>
+      <span style="font-size:13px;font-weight:700;color:var(--accent)">점수: ${quizState.score}</span>
+    </div>
+    <div class="progress-bar" style="margin-bottom:20px"><div class="progress-fill" style="width:${(quizState.idx/quizState.questions.length)*100}%"></div></div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:15px;font-weight:700;line-height:1.6">${q.q}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px" id="quizOptions">
+      ${q.a.map((opt,i)=>`
+        <button onclick="answerQuiz(${i})" style="text-align:left;background:var(--surface);border:2px solid var(--border);border-radius:14px;padding:14px 16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit;transition:all .2s" id="qopt${i}">
+          <span style="color:var(--text3);margin-right:8px">${['①','②','③','④'][i]}</span>${opt}
+        </button>`).join('')}
+    </div>
+    <div id="quizExp" style="margin-top:16px"></div>`;
+}
+window.answerQuiz=function(i){
+  if(quizState.answered)return;
+  quizState.answered=true;
+  const q=quizState.questions[quizState.idx];
+  const correct=i===q.ans;
+  if(correct)quizState.score++;
+  // 색상 표시
+  q.a.forEach((_,j)=>{
+    const btn=document.getElementById('qopt'+j);
+    if(!btn)return;
+    btn.style.cursor='default';
+    if(j===q.ans)btn.style.borderColor='var(--green)',btn.style.background='rgba(16,185,129,.1)';
+    else if(j===i&&!correct)btn.style.borderColor='var(--red)',btn.style.background='rgba(239,68,68,.1)';
+  });
+  document.getElementById('quizExp').innerHTML=`
+    <div class="card" style="border-color:${correct?'var(--green)':'var(--red)'}">
+      <div style="font-size:14px;font-weight:700;color:${correct?'var(--green)':'var(--red)'};margin-bottom:6px">${correct?'✅ 정답!':'❌ 오답!'}</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">${q.exp}</div>
+      <button onclick="nextQuiz()" style="margin-top:12px;width:100%;background:var(--accent);border:none;border-radius:10px;padding:10px;font-size:14px;font-weight:700;color:#fff;cursor:pointer">${quizState.idx+1<quizState.questions.length?'다음 문제 →':'결과 보기'}</button>
+    </div>`;
+};
+window.nextQuiz=function(){quizState.idx++;quizState.answered=false;renderQuiz();};
+
+// ══ 테트리스 ══
+const TET_COLS=10,TET_ROWS=20,TET_SIZE=20;
+const TET_COLORS=['','#0ff','#00f','#f80','#ff0','#0f0','#f0f','#f00'];
+const TET_PIECES=[
+  [[1,1,1,1]],
+  [[2,0,0],[2,2,2]],
+  [[0,0,3],[3,3,3]],
+  [[4,4],[4,4]],
+  [[0,5,5],[5,5,0]],
+  [[0,6,0],[6,6,6]],
+  [[7,7,0],[0,7,7]],
+];
+let tetBoard,tetPiece,tetX,tetY,tetScore2=0,tetLines2=0,tetLevel2=1,tetRunning=false,tetTimer=null;
+
+function initTetrisUI(){
+  const canvas=document.getElementById('tetCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#0a0e1a';ctx.fillRect(0,0,200,400);
+  ctx.fillStyle='var(--text3)';ctx.font='14px monospace';ctx.textAlign='center';
+}
+
+window.startTetris=function(){
+  tetBoard=Array.from({length:TET_ROWS},()=>Array(TET_COLS).fill(0));
+  tetScore2=0;tetLines2=0;tetLevel2=1;tetRunning=true;
+  document.getElementById('tetOverlay').style.display='none';
+  document.getElementById('tetScore').textContent='0';
+  document.getElementById('tetLines').textContent='0';
+  document.getElementById('tetLevel').textContent='1';
+  spawnTet();
+  if(tetTimer)clearInterval(tetTimer);
+  tetTimer=setInterval(tetTick,600);
+};
+
+function spawnTet(){
+  const type=Math.floor(Math.random()*TET_PIECES.length);
+  tetPiece=TET_PIECES[type].map(r=>[...r]);
+  tetX=Math.floor(TET_COLS/2)-Math.floor(tetPiece[0].length/2);
+  tetY=0;
+  if(collides(tetPiece,tetX,tetY)){endTetris();}
+}
+
+function collides(piece,px,py){
+  for(let r=0;r<piece.length;r++)for(let c=0;c<piece[r].length;c++){
+    if(piece[r][c]&&(py+r>=TET_ROWS||px+c<0||px+c>=TET_COLS||tetBoard[py+r]?.[px+c]))return true;
+  }
+  return false;
+}
+
+function tetTick(){
+  if(!tetRunning)return;
+  if(!collides(tetPiece,tetX,tetY+1)){tetY++;}
+  else{lockTet();clearLines();spawnTet();}
+  drawTetris();
+}
+
+function lockTet(){
+  for(let r=0;r<tetPiece.length;r++)for(let c=0;c<tetPiece[r].length;c++){
+    if(tetPiece[r][c])tetBoard[tetY+r][tetX+c]=tetPiece[r][c];
+  }
+}
+
+function clearLines(){
+  let cleared=0;
+  for(let r=TET_ROWS-1;r>=0;r--){
+    if(tetBoard[r].every(c=>c)){tetBoard.splice(r,1);tetBoard.unshift(Array(TET_COLS).fill(0));cleared++;r++;}
+  }
+  if(cleared){
+    const pts=[0,100,300,500,800];
+    tetScore2+=pts[cleared]*tetLevel2;
+    tetLines2+=cleared;
+    tetLevel2=Math.floor(tetLines2/10)+1;
+    clearInterval(tetTimer);
+    tetTimer=setInterval(tetTick,Math.max(100,600-tetLevel2*50));
+    document.getElementById('tetScore').textContent=tetScore2;
+    document.getElementById('tetLines').textContent=tetLines2;
+    document.getElementById('tetLevel').textContent=tetLevel2;
+  }
+}
+
+function drawTetris(){
+  const canvas=document.getElementById('tetCanvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#0a0e1a';ctx.fillRect(0,0,200,400);
+  // 보드
+  for(let r=0;r<TET_ROWS;r++)for(let c=0;c<TET_COLS;c++){
+    if(tetBoard[r][c]){
+      ctx.fillStyle=TET_COLORS[tetBoard[r][c]];
+      ctx.fillRect(c*TET_SIZE+1,r*TET_SIZE+1,TET_SIZE-2,TET_SIZE-2);
+    }
+  }
+  // 현재 피스
+  if(tetPiece){
+    for(let r=0;r<tetPiece.length;r++)for(let c=0;c<tetPiece[r].length;c++){
+      if(tetPiece[r][c]){
+        ctx.fillStyle=TET_COLORS[tetPiece[r][c]];
+        ctx.fillRect((tetX+c)*TET_SIZE+1,(tetY+r)*TET_SIZE+1,TET_SIZE-2,TET_SIZE-2);
+      }
+    }
+    // 고스트
+    let gy=tetY;
+    while(!collides(tetPiece,tetX,gy+1))gy++;
+    for(let r=0;r<tetPiece.length;r++)for(let c=0;c<tetPiece[r].length;c++){
+      if(tetPiece[r][c]){
+        ctx.fillStyle=TET_COLORS[tetPiece[r][c]]+'44';
+        ctx.fillRect((tetX+c)*TET_SIZE+1,(gy+r)*TET_SIZE+1,TET_SIZE-2,TET_SIZE-2);
+      }
+    }
+  }
+  // 그리드
+  ctx.strokeStyle='#ffffff08';ctx.lineWidth=0.5;
+  for(let r=0;r<=TET_ROWS;r++){ctx.beginPath();ctx.moveTo(0,r*TET_SIZE);ctx.lineTo(200,r*TET_SIZE);ctx.stroke();}
+  for(let c=0;c<=TET_COLS;c++){ctx.beginPath();ctx.moveTo(c*TET_SIZE,0);ctx.lineTo(c*TET_SIZE,400);ctx.stroke();}
+}
+
+function endTetris(){
+  tetRunning=false;clearInterval(tetTimer);
+  const ov=document.getElementById('tetOverlay');
+  ov.innerHTML=`<div style="font-family:monospace;font-size:16px;font-weight:700;color:#f44;margin-bottom:8px">GAME OVER</div><div style="font-family:monospace;font-size:13px;color:var(--text2);margin-bottom:16px">점수: ${tetScore2}</div><button onclick="startTetris()" style="background:var(--accent);border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:monospace">RETRY</button>`;
+  ov.style.display='flex';ov.style.flexDirection='column';ov.style.alignItems='center';ov.style.justifyContent='center';
+}
+
+window.tetMove=function(dir){if(!tetRunning)return;if(!collides(tetPiece,tetX+dir,tetY))tetX+=dir;drawTetris();};
+window.tetRotate=function(){
+  if(!tetRunning)return;
+  const rotated=tetPiece[0].map((_,i)=>tetPiece.map(r=>r[i]).reverse());
+  if(!collides(rotated,tetX,tetY))tetPiece=rotated;
+  drawTetris();
+};
+window.tetDrop=function(){if(!tetRunning)return;if(!collides(tetPiece,tetX,tetY+1))tetY++;else{lockTet();clearLines();spawnTet();}drawTetris();};
+window.tetHardDrop=function(){if(!tetRunning)return;while(!collides(tetPiece,tetX,tetY+1))tetY++;lockTet();clearLines();spawnTet();drawTetris();};
+
+// 테트리스 키보드
+document.addEventListener('keydown',e=>{
+  const panel=document.getElementById('funPanel6');
+  if(!panel||panel.style.display==='none')return;
+  if(e.key==='ArrowLeft'){e.preventDefault();window.tetMove(-1);}
+  if(e.key==='ArrowRight'){e.preventDefault();window.tetMove(1);}
+  if(e.key==='ArrowUp'){e.preventDefault();window.tetRotate();}
+  if(e.key==='ArrowDown'){e.preventDefault();window.tetDrop();}
+  if(e.key===' '){e.preventDefault();window.tetHardDrop();}
+});
 
 // ── 돌림판 ──
 function drawWheel(){
@@ -1836,10 +2631,14 @@ window.loadClassNames=async function(){
   try{
     const snap=await getDocs(collection(db,USERS));
     if(snap.empty){
-      // 등록된 유저 없으면 학번으로
       wheelItems=Array.from({length:20},(_,i)=>`${1101+i}`);
     } else {
-      wheelItems=snap.docs.map(d=>d.data().name||d.id);
+      wheelItems=snap.docs
+        .sort((a,b)=>a.id.localeCompare(b.id))
+        .map(d=>{
+          const name=d.data().name||d.id;
+          return name===d.id?name:`${name}(${d.id})`;
+        });
     }
     renderWheelItems();drawWheel();
     showToast('✅ 불러오기 완료!');
@@ -1867,25 +2666,37 @@ window.spinWheel=function(){
   isSpinning=true;
   document.getElementById('spinBtn').disabled=true;
   document.getElementById('wheelResult').textContent='';
-  const extra=Math.PI*2*(5+Math.random()*5); // 5~10바퀴
-  const targetAngle=wheelAngle+extra;
-  const duration=4000;
-  const start=performance.now();
-  const startAngle=wheelAngle;
+
+  // 1. 당첨자 먼저 완전 랜덤으로 뽑기
+  const winnerIdx = Math.floor(Math.random() * wheelItems.length);
+  const winner = wheelItems[winnerIdx];
+
+  // 2. 당첨자 조각 중앙이 화살표(12시, -π/2)에 오도록 목표 각도 계산
+  const slice = (2*Math.PI) / wheelItems.length;
+  const targetAngle = -Math.PI/2 - (winnerIdx * slice + slice/2);
+
+  // 3. 현재 각도에서 목표까지 최소 5바퀴 이상 돌도록 설정
+  const fullSpins = (5 + Math.floor(Math.random()*5)) * Math.PI*2;
+  const currentNorm = ((wheelAngle % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
+  const targetNorm = ((targetAngle % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
+  let diff = targetNorm - currentNorm;
+  if(diff < 0) diff += Math.PI*2;
+  const extra = fullSpins + diff;
+
+  const duration = 4000;
+  const start = performance.now();
+  const startAngle = wheelAngle;
 
   function animate(now){
-    const elapsed=now-start;
-    const t=Math.min(elapsed/duration,1);
-    // easeOutCubic
-    const ease=1-Math.pow(1-t,3);
-    wheelAngle=startAngle+extra*ease;
+    const elapsed = now - start;
+    const t = Math.min(elapsed/duration, 1);
+    const ease = 1 - Math.pow(1-t, 3);
+    wheelAngle = startAngle + extra*ease;
     drawWheel();
-    if(t<1){requestAnimationFrame(animate);return;}
-    // 결과 계산
-    const slice=(2*Math.PI)/wheelItems.length;
-    const normalized=(((-wheelAngle%(Math.PI*2))+Math.PI*2+Math.PI/2)%(Math.PI*2));
-    const idx=Math.floor(normalized/slice)%wheelItems.length;
-    const winner=wheelItems[idx];
+    if(t < 1){ requestAnimationFrame(animate); return; }
+    // 정확히 목표 각도로 맞추기
+    wheelAngle = startAngle + extra;
+    drawWheel();
     document.getElementById('wheelResult').innerHTML=`🎉 <span style="color:var(--accent)">${winner}</span> 당첨!`;
     isSpinning=false;
     document.getElementById('spinBtn').disabled=false;
@@ -2007,7 +2818,7 @@ window.switchLoginTab=function(tab){
 };
 window.showTeacherLogin=function(){document.getElementById('teacherRegisterForm').style.display='none';document.getElementById('teacherLoginForm').style.display=''};
 window.showTeacherRegister=function(){document.getElementById('teacherRegisterForm').style.display='';document.getElementById('teacherLoginForm').style.display='none'};
-window.editTimetable=function(){openModal('ttModal')};
+window.editTimetable=function(){openModal('ttModal');};
 window.openHwModal=function(){openModal('hwModal')};
 window.openPostModal=function(){openModal('postModal')};
 window.openDdayModal=function(){openModal('ddayModal')};
@@ -2091,21 +2902,7 @@ window.addComment=async function(){
   openPostDetail(currentPostId);
   showToast('댓글 작성!');
 };
-window.changePw=async function(){
-  const old=document.getElementById('pwOld').value;
-  const nw=document.getElementById('pwNew').value;
-  const nw2=document.getElementById('pwNew2').value;
-  const err=document.getElementById('pwErr');err.textContent='';
-  const snap=await getDoc(doc(db,USERS,currentUser.snum));
-  if(!snap.exists()){err.textContent='사용자를 찾을 수 없어요';return}
-  const u=snap.data();
-  if(u.pw!==old&&old!==currentUser.snum){err.textContent='현재 비밀번호가 틀렸어요';return}
-  if(nw.length<4){err.textContent='4자 이상 입력하세요';return}
-  if(nw!==nw2){err.textContent='비밀번호 불일치';return}
-  await updateDoc(doc(db,USERS,currentUser.snum),{pw:nw});
-  currentUser.pw=nw;sessionStorage.setItem('curUser',JSON.stringify(currentUser));
-  closeModal('pwModal');err.textContent='';showToast('🔐 비밀번호 변경 완료!');
-};
+
 window.saveProfileEdit=async function(){
   const status=document.getElementById('profileStatusInput').value.trim();
   currentUser.color=_pColor;currentUser.emoji=_pEmoji;currentUser.status=status;
